@@ -1,7 +1,5 @@
 # Web framework on Gevent and Python
 
-Object-oriented web framework on Gevent and Python.
-
 # Usage
 
 * main.py
