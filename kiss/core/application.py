@@ -3,6 +3,7 @@ from gevent.wsgi import WSGIServer
 import sys
 from helper import Helper, Singleton
 from kiss.controllers.router import Router
+from beaker.middleware import SessionMiddleware
 
 class Application(object):
 	__metaclass__ = Singleton
@@ -18,10 +19,19 @@ class Application(object):
 		return [response.result]
 	
 	def start(self):
-		WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.on_request).serve_forever()
+		session_options = {
+			'session.type': "cookie",
+			"session.auto": True,
+			'session.cookie_expires': True,
+			'session.encrypt_key':'sldk24j0jf09w0jfg24',
+			'session.validate_key':';l[pfghopkqeq1234,fs'
+		}
+		self.session_middleware = SessionMiddleware(self.on_request, session_options, environ_key="session")
+		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.session_middleware)
+		self.server.serve_forever()
 		
 	def stop(self):
-		server.stop()
+		self.server.stop()
 		
 	@staticmethod
 	def options():

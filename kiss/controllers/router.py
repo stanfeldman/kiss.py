@@ -24,6 +24,7 @@ class Router(object):
 		request.query = options["QUERY_STRING"]
 		request.address = options["REMOTE_ADDR"]
 		request.port = options["SERVER_PORT"]
+		request.session = options["session"]
 		if request.path in self.options["urls"]:
 			controller = self.options["urls"][request.path]
 			action = getattr(controller, request.method)
