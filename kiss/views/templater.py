@@ -1,2 +1,0 @@
-class Templater(object):
-	pass
