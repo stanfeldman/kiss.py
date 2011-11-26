@@ -3,6 +3,9 @@
 # Usage
 
 Break your app to views, controllers and models(not supported now).
+Kiss.py uses Django-like templates from Jinja2.
+Controller is object from class with methods get, post, put, delete.
+These methods get Request object param and return Response object.
 
 # main.py
 	<pre>
@@ -45,7 +48,6 @@ Break your app to views, controllers and models(not supported now).
 		return TemplateResponse("view.html", {"foo": request.session["foo"], "users": [{"url": "google.com", "username": "brin"}]})
 	</pre>
 # views/templates/view.html
-	Kiss.py uses Django-like templates from Jinja2.
 	
 	<html>
 		<head>
