@@ -7,7 +7,7 @@ setup(
     description = ("Web framework on gevent"),
     keywords = "web framework gevent",
     packages=['kiss', 'project'],
-    install_requires = ['gevent', "Jinja2"],
+    install_requires = ['gevent', "Jinja2", "Beaker"],
     classifiers=[
         "Development Status :: 1 - Alpha",
         "Topic :: Software Development"

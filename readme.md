@@ -2,7 +2,9 @@
 
 # Usage
 
-* main.py
+Break your app to views, controllers and models(not supported now).
+
+# main.py
 	<pre>
 	import sys
 	sys.path.append("..")
@@ -11,7 +13,7 @@
 	app = Application(options)
 	app.start()
 	</pre>
-* settings.py
+# settings.py
 	<pre>
 	from controllers.controller1 import Controller1
 	from controllers.controller2 import Controller2
@@ -32,13 +34,29 @@
 		}
 	}
 	</pre>
-* controllers/controller1.py
+# controllers/controller1.py
 	<pre>
 	from kiss.views.templates import TemplateResponse
 	import time
 	class Controller2(object):
-		def get(self, request):
-			return TemplateResponse("view.html", {"users": [{"url": "google.com", "username": "brin"}]})
+		if not "foo" in request.session:
+			request.session["foo"] = 0
+		request.session["foo"] += 1
+		return TemplateResponse("view.html", {"foo": request.session["foo"], "users": [{"url": "google.com", "username": "brin"}]})
 	</pre>
-* view.html
-	Kiss.py uses Django-like templates from Jinja1. See project folder.
+# views/templates/view.html
+	Kiss.py uses Django-like templates from Jinja2.
+	
+	<html>
+		<head>
+			<title>{% block title %}{% endblock %}</title>
+		</head>
+		<body>
+			<div>{{foo}}</div>
+			<ul>
+			{% for user in users %}
+			  <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+			{% endfor %}
+			</ul>
+		</body>
+	</html>
