@@ -1,12 +1,12 @@
 class Helper(object):
 	@staticmethod
-	def flat(d, delimiter="/", key="", out={}):
+	def flat_dict(d, delimiter="/", start_char="^", end_char="$", key="", out={}):
 		for k,v in d.iteritems():
 			new_key = key + delimiter + k
 			if isinstance(v, dict):
-				Helper.flat(v, delimiter, new_key, out)
+				Helper.flat_dict(v, delimiter, start_char, end_char, new_key, out)
 			else:
-				out[new_key] = v
+				out[start_char + new_key + end_char] = v
 		return out
 		
 class Singleton(type):

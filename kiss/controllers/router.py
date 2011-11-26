@@ -1,5 +1,7 @@
 import os
 from jinja2 import Environment, PackageLoader
+from kiss.core.helper import Helper
+import re
 
 class Request(object):
 	pass
@@ -13,6 +15,8 @@ class Response(object):
 class Router(object):
 	def __init__(self, options):
 		self.options = options
+		self.options["urls"] = Helper.flat_dict(self.options["urls"])
+		#print self.options["urls"]
 		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""))
 		
 	def route(self, options):
@@ -25,9 +29,13 @@ class Router(object):
 		request.address = options["REMOTE_ADDR"]
 		request.port = options["SERVER_PORT"]
 		request.session = options["session"]
-		if request.path in self.options["urls"]:
-			controller = self.options["urls"][request.path]
-			action = getattr(controller, request.method)
-			response = action(request)
+		for re_url, controller in self.options["urls"].iteritems():
+			match = re.match(re_url, request.path)
+			if match:
+				request.params = match.groupdict()
+				#controller = self.options["urls"][request.path]
+				action = getattr(controller, request.method)
+				response = action(request)
+				break
 		return response
 		

@@ -4,6 +4,7 @@ import time
 class Controller2(object):
 	def get(self, request):
 		#time.sleep(3)
+		#print request.params
 		if not "foo" in request.session:
 			request.session["foo"] = 0
 		request.session["foo"] += 1

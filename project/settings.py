@@ -8,6 +8,9 @@ options = {
 	},
 	"urls": {
 		"": Controller1(),
+		"users": {
+			"(?P<user>\w+)": Controller2()
+		},
 		"2": {
 			"3": Controller1(),
 			"4": Controller2()

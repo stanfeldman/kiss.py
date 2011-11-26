@@ -1,7 +1,7 @@
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
 import sys
-from helper import Helper, Singleton
+from helper import Singleton
 from kiss.controllers.router import Router
 from beaker.middleware import SessionMiddleware
 
@@ -10,7 +10,6 @@ class Application(object):
 	
 	def __init__(self, options):
 		self.options = options
-		self.options["urls"] = Helper.flat(self.options["urls"])
 		self.router = Router(self.options)
 			
 	def on_request(self, options, start_response):
