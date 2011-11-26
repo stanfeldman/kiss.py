@@ -1,6 +1,5 @@
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
-import sys
 from helper import Singleton
 from kiss.controllers.router import Router
 from beaker.middleware import SessionMiddleware
@@ -15,7 +14,7 @@ class Application(object):
 	def on_request(self, options, start_response):
 		response = self.router.route(options)
 		start_response(response.status, response.headers)
-		return [response.result]
+		return response.result
 	
 	def start(self):
 		session_options = {
@@ -31,10 +30,6 @@ class Application(object):
 		
 	def stop(self):
 		self.server.stop()
-		
-	@staticmethod
-	def options():
-		return self.options
 		
 if __name__ == "__main__":
 	app = Application()

@@ -1,6 +1,6 @@
 import os
 from jinja2 import Environment, PackageLoader
-from kiss.core.helper import Helper
+from kiss.core.helper import Helper, Singleton
 import re
 
 class Request(object):
@@ -13,6 +13,8 @@ class Response(object):
 		self.headers = headers
 
 class Router(object):
+	__metaclass__ = Singleton
+	
 	def __init__(self, options):
 		self.options = options
 		self.options["urls"] = Helper.flat_dict(self.options["urls"])
