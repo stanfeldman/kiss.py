@@ -1,4 +1,8 @@
-from setuptools import setup
+from distutils.core import setup
+try:
+	from setuptools import setup
+except:
+	pass
 
 setup(
     name = "kiss.py",
@@ -6,10 +10,13 @@ setup(
     author = "Stanislav Feldman",
     description = ("Web framework on gevent"),
     keywords = "web framework gevent",
-    packages=['kiss', 'project'],
+    packages=[
+    	'kiss', "kiss.controllers", "kiss.core", "kiss.views"
+    ],
     install_requires = ['gevent', "Jinja2", "Beaker"],
     classifiers=[
-        "Development Status :: 1 - Alpha",
-        "Topic :: Software Development"
+        "Development Status :: 3 - Alpha",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries :: Application Frameworks"
     ],
 )
