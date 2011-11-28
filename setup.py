@@ -6,14 +6,14 @@ except:
 
 setup(
     name = "kiss.py",
-    version = "0.0.1",
+    version = "0.0.2",
     author = "Stanislav Feldman",
     description = ("Web framework on gevent"),
     keywords = "web framework gevent",
     packages=[
     	'kiss', "kiss.controllers", "kiss.core", "kiss.views"
     ],
-    install_requires = ['gevent', "Jinja2", "Beaker"],
+    install_requires = ['gevent', "Jinja2", "Beaker", "werkzeug"],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Software Development",
