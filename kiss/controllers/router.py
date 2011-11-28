@@ -2,21 +2,6 @@ import os
 from jinja2 import Environment, PackageLoader
 from kiss.core.helper import Helper, Singleton
 import re
-import werkzeug.wrappers
-from werkzeug.utils import cached_property
-
-class Request(werkzeug.wrappers.Request):
-	def __init__(self, options):
-		super(Request, self).__init__(options)
-	
-	@cached_property
-	def session(self):
-		return self.environ["session"]
-	
-class Response(werkzeug.wrappers.Response):
-	def __init__(self, text):
-		super(Response, self).__init__(text)
-		self.headers['content-type'] = 'text/html; charset=utf-8'
 
 class Router(object):
 	__metaclass__ = Singleton

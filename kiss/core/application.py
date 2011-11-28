@@ -1,7 +1,8 @@
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
 from helper import Singleton
-from kiss.controllers.router import Router, Request
+from kiss.controllers.router import Router
+from kiss.views.base import Request, Response
 from beaker.middleware import SessionMiddleware
 
 class Application(object):
@@ -14,6 +15,8 @@ class Application(object):
 	def on_request(self, options, start_response):
 		request = Request(options)
 		response = self.router.route(request)
+		if not response:
+			response = Response("404 Not Found")
 		return response(options, start_response)
 	
 	def start(self):

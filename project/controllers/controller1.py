@@ -1,4 +1,4 @@
-from kiss.controllers.router import Response
+from kiss.views.base import Response
 
 class Controller1(object):
 	def get(self, request):
