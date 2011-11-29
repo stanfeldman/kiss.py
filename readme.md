@@ -9,14 +9,14 @@ These methods get Request object param and return Response object.
 Request and Response objects inherited from Werkzeug.
 
 # main.py
-	<pre>
+
 	from kiss.core.application import Application
 	from settings import options
 	app = Application(options)
 	app.start()
-	</pre>
+
 # settings.py
-	<pre>
+
 	from controllers.controller1 import Controller1
 	from controllers.controller2 import Controller2
 	options = {
@@ -36,16 +36,16 @@ Request and Response objects inherited from Werkzeug.
 			"static_path": "views.static"
 		}
 	}
-	</pre>
+
 # controllers/controller1.py
-	<pre>
+
 	from kiss.views.templates import TemplateResponse
 	class Controller2(object):
 		if not "foo" in request.session:
 			request.session["foo"] = 0
 		request.session["foo"] += 1
 		return TemplateResponse("view.html", {"foo": request.session["foo"], "users": [{"url": "google.com", "username": "brin"}]})
-	</pre>
+
 # views/templates/view.html
 	
 	<html>
