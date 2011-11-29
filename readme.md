@@ -6,11 +6,10 @@ Break your app to views, controllers and models(not supported now).
 Kiss.py uses Django-like templates from Jinja2.
 Controller is object from class with methods get, post, put, delete.
 These methods get Request object param and return Response object.
+Request and Response objects inherited from Werkzeug.
 
 # main.py
 	<pre>
-	import sys
-	sys.path.append("..")
 	from kiss.core.application import Application
 	from settings import options
 	app = Application(options)
@@ -33,14 +32,14 @@ These methods get Request object param and return Response object.
 			}
 		},
 		"views": {
-			"templates_path": "views.templates"
+			"templates_path": "views.templates",
+			"static_path": "views.static"
 		}
 	}
 	</pre>
 # controllers/controller1.py
 	<pre>
 	from kiss.views.templates import TemplateResponse
-	import time
 	class Controller2(object):
 		if not "foo" in request.session:
 			request.session["foo"] = 0
@@ -52,6 +51,7 @@ These methods get Request object param and return Response object.
 	<html>
 		<head>
 			<title>{% block title %}{% endblock %}</title>
+			<script src="/scripts/j.js"></script>
 		</head>
 		<body>
 			<div>{{foo}}</div>
