@@ -1,6 +1,6 @@
 import os
 from jinja2 import Environment, PackageLoader
-from kiss.core.helpers import Helper, Singleton
+from kiss.core.helpers import DictHelper, Singleton
 import re
 
 class Router(object):
@@ -8,7 +8,7 @@ class Router(object):
 	
 	def __init__(self, options):
 		self.options = options
-		self.options["urls"] = Helper.flat_dict(self.options["urls"])
+		self.options["urls"] = DictHelper.flat_dict(self.options["urls"])
 		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""))
 		
 	def route(self, request):
