@@ -17,7 +17,8 @@ options = {
 		}
 	},
 	"views": {
-		"templates_path": "views.templates"
+		"templates_path": "views.templates",
+		"static_path": "views.static"
 	}
 }
 

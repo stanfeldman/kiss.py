@@ -1,9 +1,10 @@
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
-from helper import Singleton
+from helpers import Singleton, Importer
 from kiss.controllers.router import Router
 from kiss.views.base import Request, Response
 from beaker.middleware import SessionMiddleware
+from werkzeug.wsgi import SharedDataMiddleware
 
 class Application(object):
 	__metaclass__ = Singleton
@@ -12,7 +13,7 @@ class Application(object):
 		self.options = options
 		self.router = Router(self.options)
 			
-	def on_request(self, options, start_response):
+	def wsgi_app(self, options, start_response):
 		request = Request(options)
 		response = self.router.route(request)
 		if not response:
@@ -27,8 +28,10 @@ class Application(object):
 			'session.encrypt_key':'sldk24j0jf09w0jfg24',
 			'session.validate_key':';l[pfghopkqeq1234,fs'
 		}
-		self.session_middleware = SessionMiddleware(self.on_request, session_options, environ_key="session")
-		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.session_middleware)
+		if "static_path" in self.options["views"]:
+			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': Importer.module_path(self.options["views"]["static_path"])})
+		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
+		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app)
 		self.server.serve_forever()
 		
 	def stop(self):

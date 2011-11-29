@@ -1,6 +1,6 @@
 import os
 from jinja2 import Environment, PackageLoader
-from kiss.core.helper import Helper, Singleton
+from kiss.core.helpers import Helper, Singleton
 import re
 
 class Router(object):
