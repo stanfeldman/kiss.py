@@ -5,6 +5,7 @@ from kiss.controllers.router import Router
 from kiss.views.base import Request, Response
 from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
+from kiss.core.events import Eventer, Event
 
 class Application(object):
 	__metaclass__ = Singleton
@@ -23,9 +24,11 @@ class Application(object):
 				'session_cookie_expires': True,
 				'session_encrypt_key':'sldk24j0jf09w0jfg24',
 				'session_validate_key':';l[pfghopkqeq1234,fs'
-			}
+			},
+			"events": {}
 		}
 		self.options = DictHelper.merge(self.options, options)
+		self.eventer = Eventer(self.options["events"])
 		self.router = Router(self.options)
 			
 	def wsgi_app(self, options, start_response):
@@ -51,11 +54,9 @@ class Application(object):
 				pass
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app)
+		self.eventer.publish(Event.APPLICATION_AFTER_LOAD, self)
 		self.server.serve_forever()
 		
 	def stop(self):
 		self.server.stop()
-		
-if __name__ == "__main__":
-	app = Application()
-	app.start()
+
