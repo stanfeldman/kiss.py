@@ -2,9 +2,10 @@ from kiss.views.templates import TemplateResponse
 from kiss.core.events import Eventer
 from models.models import Blog, Entry
 import datetime
+from kiss.controllers.core import Controller
 
 	
-class Controller2(object):
+class Controller2(Controller):
 	def get(self, request):
 		#publish some event
 		eventer = Eventer()
@@ -32,6 +33,6 @@ class Controller2(object):
 		
 	#on load handler via eventer
 	def application_after_load(self, application):
-		pass
+		print "app loaded"
 		#Blog.create_table()
 		#Entry.create_table()

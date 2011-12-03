@@ -4,7 +4,7 @@
 
 Break your app to views, controllers and models.
 Kiss.py uses Django-like templates from Jinja2.
-Controller is object from class with methods get, post, put, delete.
+Controller is class inherited from class Controller and may have methods get, post, put, delete.
 These methods get Request object param and return Response object.
 Request and Response objects inherited from Werkzeug.
 Models consist of fields(class variables inherited from Field class).
@@ -24,21 +24,19 @@ or publish event.
 	from controllers.controller2 import Controller2
 	from kiss.core.application import Event
 	from kiss.models.adapters.postgresql import PostgresqlDatabase
-	controller1 = Controller1()
-	controller2 = Controller2()
 	options = {
 		"application": {
 			"address": "127.0.0.1",
 			"port": 8080
 		},
 		"urls": {
-			"": controller1,
+			"": Controller1,
 			"users": {
-				"(?P<user>\w+)": controller2
+				"(?P<user>\w+)": Controller2
 			},
 			"2": {
-				"3": controller1,
-				"4": controller2
+				"3": Controller1,
+				"4": Controller2
 			}
 		},
 		"views": {
@@ -46,7 +44,7 @@ or publish event.
 			"static_path": "views.static"
 		},
 		"events": {
-			Event.APPLICATION_AFTER_LOAD: [controller2.application_after_load]
+			Event.APPLICATION_AFTER_LOAD: [Controller2.application_after_load]
 		},
 		"models": {
 			"engine": PostgresqlDatabase,
@@ -103,7 +101,7 @@ or publish event.
 			})		
 		#on load handler via eventer
 		def application_after_load(self, application):
-			pass
+			print "app loaded"
 			#Blog.create_table()
 			#Entry.create_table()
 

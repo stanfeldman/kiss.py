@@ -1,4 +1,4 @@
-from kiss.models.core import BaseAdapter, Database
+from kiss.models.core import BaseAdapter, Engine
 from kiss.core.exceptions import ImproperlyConfigured
 try:
     import psycopg2
@@ -45,9 +45,9 @@ class PostgresqlAdapter(BaseAdapter):
         return cursor.fetchone()[0]
         
 
-class PostgresqlDatabase(Database):
+class PostgresqlEngine(Engine):
     def __init__(self, connect_kwargs):
-        super(PostgresqlDatabase, self).__init__(PostgresqlAdapter(), connect_kwargs)
+        super(PostgresqlEngine, self).__init__(PostgresqlAdapter(), connect_kwargs)
     
     def get_indexes_for_table(self, table):
         res = self.execute("""

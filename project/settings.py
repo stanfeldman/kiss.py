@@ -1,24 +1,22 @@
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
 from kiss.core.application import Event
-from kiss.models.adapters.postgresql import PostgresqlDatabase
+from kiss.models.adapters.postgresql import PostgresqlEngine
 
 
-controller1 = Controller1()
-controller2 = Controller2()
 options = {
 	"application": {
 		"address": "127.0.0.1",
 		"port": 8080
 	},
 	"urls": {
-		"": controller1,
+		"": Controller1,
 		"users": {
-			"(?P<user>\w+)": controller2
+			"(?P<user>\w+)": Controller2
 		},
 		"2": {
-			"3": controller1,
-			"4": controller2
+			"3": Controller1,
+			"4": Controller2
 		}
 	},
 	"views": {
@@ -26,10 +24,10 @@ options = {
 		"static_path": "views.static"
 	},
 	"events": {
-		Event.APPLICATION_AFTER_LOAD: [controller2.application_after_load]
+		Event.APPLICATION_AFTER_LOAD: [Controller2.application_after_load]
 	},
 	"models": {
-		"engine": PostgresqlDatabase,
+		"engine": PostgresqlEngine,
 		"host": "localhost",
 		"database": 'test',
 		"user": 'postgres',

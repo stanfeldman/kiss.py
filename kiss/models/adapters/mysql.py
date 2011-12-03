@@ -1,4 +1,4 @@
-from kiss.models.core import BaseAdapter, Database
+from kiss.models.core import BaseAdapter, Engine
 from kiss.core.exceptions import ImproperlyConfigured
 try:
     import MySQLdb as mysql
@@ -41,9 +41,9 @@ class MySQLAdapter(BaseAdapter):
         }
 
         
-class MySQLDatabase(Database):
+class MySQLEngine(Engine):
     def __init__(self, connect_kwargs):
-        super(MySQLDatabase, self).__init__(MySQLAdapter(), connect_kwargs)
+        super(MySQLEngine, self).__init__(MySQLAdapter(), connect_kwargs)
     
     def get_indexes_for_table(self, table):
         res = self.execute('SHOW INDEXES IN %s;' % table)

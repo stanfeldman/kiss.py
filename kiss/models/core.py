@@ -15,7 +15,7 @@ from queries import SelectQuery, UpdateQuery, DeleteQuery, RawQuery
 class BaseAdapter(object):
     """
     The various subclasses of `BaseAdapter` provide a bridge between the high-
-    level `Database` abstraction and the underlying python libraries like
+    level `Engine` abstraction and the underlying python libraries like
     psycopg2.  It also provides a way to unify the pythonic field types with
     the underlying column types used by the database engine.
     
@@ -23,7 +23,7 @@ class BaseAdapter(object):
     - mapping between filter operations and their database equivalents
     - mapping between basic field types and their database column types
     
-    The `BaseAdapter` also is the mechanism used by the `Database` class to:
+    The `BaseAdapter` also is the mechanism used by the `Engine` class to:
     - handle connections with the database
     - extract information from the database cursor
     """
@@ -71,9 +71,9 @@ class BaseAdapter(object):
         return cursor.rowcount
 
 
-class Database(object):
+class Engine(object):
     """
-    A high-level api for working with the supported database engines.  `Database`
+    A high-level api for working with the supported database engines.  `Engine`
     provides a wrapper around some of the functions performed by the `Adapter`,
     in addition providing support for:
     - execution of SQL queries

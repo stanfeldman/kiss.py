@@ -2,6 +2,7 @@ import os
 from jinja2 import Environment, PackageLoader
 from kiss.core.helpers import DictHelper, Singleton
 import re
+from kiss.controllers.core import Controller
 
 
 class Router(object):
@@ -9,7 +10,11 @@ class Router(object):
 	
 	def __init__(self, options):
 		self.options = options
-		self.options["urls"] = DictHelper.flat_dict(self.options["urls"])
+		urls = DictHelper.flat_dict(self.options["urls"])
+		for k, v in urls.iteritems():
+			if issubclass(v, Controller):
+				urls[k] = v()
+		self.options["urls"] = urls
 		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""))
 		
 	def route(self, request):
