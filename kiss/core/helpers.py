@@ -20,6 +20,11 @@ class DictHelper(object):
 				DictHelper.merge(v1, d2[k1])
 		return d2
 		
+class LogicHelper(object):
+	@staticmethod
+	def ternary(cond, t, f):
+		return (cond and [t] or [f])[0]
+		
 class Singleton(type):
      def __init__(cls, name, bases, dict):
          super(Singleton, cls).__init__(name, bases, dict)
