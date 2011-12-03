@@ -8,7 +8,7 @@ import re
 import threading
 import time
 from kiss.core.exceptions import DoesNotExist, EmptyResultException
-from kiss.core.helpers import LogicHelper
+from kiss.core.helpers import LogicHelper, Singleton
 from queries import SelectQuery, UpdateQuery, DeleteQuery, RawQuery
 
 
@@ -27,6 +27,9 @@ class BaseAdapter(object):
     - handle connections with the database
     - extract information from the database cursor
     """
+    
+    __metaclass__ = Singleton
+    
     operations = {'eq': '= %s'}
     interpolation = '%s'
     
@@ -48,7 +51,7 @@ class BaseAdapter(object):
     def get_field_overrides(self):
         return {}
     
-    def connect(self, database, **kwargs):
+    def connect(self, **kwargs):
         raise NotImplementedError
     
     def close(self, conn):
@@ -76,21 +79,23 @@ class Database(object):
     - execution of SQL queries
     - creating and dropping tables and indexes
     """
-    def __init__(self, adapter, threadlocals=False, **connect_kwargs):
+    
+    __metaclass__ = Singleton
+    
+    def __init__(self, adapter, connect_kwargs, threadlocals=False):
         self.adapter = adapter
         self.connect_kwargs = connect_kwargs
-        self.database = self.connect_kwargs["database"]
-        
+        self.database = self.connect_kwargs["database"]        
         if threadlocals:
             self.__local = threading.local()
         else:
-            self.__local = type('DummyLocal', (object,), {})
-        
+            self.__local = type('DummyLocal', (object,), {})       
         self._conn_lock = threading.Lock()
+        BaseModelOptions.database = self
     
     def connect(self):
         with self._conn_lock:
-            self.__local.conn = self.adapter.connect(**self.connect_kwargs)
+            self.__local.conn = self.adapter.connect(self.connect_kwargs)
             self.__local.closed = False
     
     def close(self):

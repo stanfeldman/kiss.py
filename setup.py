@@ -6,9 +6,9 @@ except:
 
 setup(
     name = "kiss.py",
-    version = "0.0.4",
+    version = "0.0.5",
     author = "Stanislav Feldman",
-    description = ("Web framework on gevent"),
+    description = ("MVC web framework on Gevent"),
     keywords = "web framework gevent",
     packages=[
     	'kiss', "kiss.controllers", "kiss.core", "kiss.views"

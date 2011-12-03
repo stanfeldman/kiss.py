@@ -1,5 +1,6 @@
 import os
 
+
 class DictHelper(object):
 	@staticmethod
 	def flat_dict(d, delimiter="/", start_char="^", end_char="$", key="", out={}):
@@ -19,11 +20,13 @@ class DictHelper(object):
 			elif isinstance(v1, dict):
 				DictHelper.merge(v1, d2[k1])
 		return d2
+
 		
 class LogicHelper(object):
 	@staticmethod
 	def ternary(cond, t, f):
 		return (cond and [t] or [f])[0]
+
 		
 class Singleton(type):
      def __init__(cls, name, bases, dict):
@@ -34,6 +37,7 @@ class Singleton(type):
          if cls.instance is None:
              cls.instance = super(Singleton, cls).__call__(*args, **kw)
          return cls.instance
+
          
 class Importer(object):
 	@staticmethod

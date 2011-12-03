@@ -4,10 +4,16 @@
 		<script src="/scripts/j.js"></script>
 	</head>
 	<body>
-		<div>{{foo}}</div>
+		<div>{{ foo }}</div>
 		<ul>
 		{% for user in users %}
 		  <li><a href="{{ user.url }}">{{ user.username }}</a></li>
+		{% endfor %}
+		</ul>
+		<div>Blog: {{ blog.name }}</div>
+		<ul>
+		{% for entry in blog.entry_set %}
+			<li>{{  entry.title }}</li>
 		{% endfor %}
 		</ul>
 	</body>

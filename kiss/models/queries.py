@@ -1,3 +1,6 @@
+from kiss.core.exceptions import EmptyResultException
+
+
 class QueryResultWrapper(object):
     """
     Provides an iterator over the results of a raw Query, additionally doing

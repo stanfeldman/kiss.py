@@ -1,6 +1,7 @@
 from kiss.views.base import Response
 from kiss.core.application import Application
 
+
 class TemplateResponse(Response):
 	def __init__(self, path, context={}, **argw):
 		self.application = Application()

@@ -22,10 +22,14 @@ class PostgresqlAdapter(BaseAdapter):
         'startswith': 'LIKE %s',
     }
         
-    def connect(self, **kwargs):
+    def connect(self, options):
         if not psycopg2:
             raise ImproperlyConfigured('psycopg2 must be installed on the system')
-        return psycopg2.connect(**kwargs)
+        return psycopg2.connect(
+        	host=options["host"], 
+        	database=options["database"], 
+        	user=options["user"], 
+        	password=options["password"])
     
     def get_field_overrides(self):
         return {
@@ -42,8 +46,8 @@ class PostgresqlAdapter(BaseAdapter):
         
 
 class PostgresqlDatabase(Database):
-    def __init__(self, **connect_kwargs):
-        super(PostgresqlDatabase, self).__init__(PostgresqlAdapter(), **connect_kwargs)
+    def __init__(self, connect_kwargs):
+        super(PostgresqlDatabase, self).__init__(PostgresqlAdapter(), connect_kwargs)
     
     def get_indexes_for_table(self, table):
         res = self.execute("""

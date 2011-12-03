@@ -1,5 +1,6 @@
 from kiss.core.helpers import Singleton
 
+
 class Eventer(object):
 	__metaclass__ = Singleton
 	
@@ -15,6 +16,7 @@ class Eventer(object):
 		if signal in self.__mapping:
 			for slot in self.__mapping[signal]:
 				slot(*argc, **argw)
+
 		
 class Event(object):
 	APPLICATION_AFTER_LOAD = 0

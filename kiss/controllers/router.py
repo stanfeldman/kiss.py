@@ -3,6 +3,7 @@ from jinja2 import Environment, PackageLoader
 from kiss.core.helpers import DictHelper, Singleton
 import re
 
+
 class Router(object):
 	__metaclass__ = Singleton
 	

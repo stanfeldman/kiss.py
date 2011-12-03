@@ -1,6 +1,8 @@
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
 from kiss.core.application import Event
+from kiss.models.adapters.postgresql import PostgresqlDatabase
+
 
 controller1 = Controller1()
 controller2 = Controller2()
@@ -25,6 +27,13 @@ options = {
 	},
 	"events": {
 		Event.APPLICATION_AFTER_LOAD: [controller2.application_after_load]
+	},
+	"models": {
+		"engine": PostgresqlDatabase,
+		"host": "localhost",
+		"database": 'test',
+		"user": 'postgres',
+		"password": "postgres"
 	}
 }
 

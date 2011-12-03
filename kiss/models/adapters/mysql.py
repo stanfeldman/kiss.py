@@ -22,10 +22,14 @@ class MySQLAdapter(BaseAdapter):
         'startswith': 'LIKE BINARY %s',
     }
 
-    def connect(self, **kwargs):
+    def connect(self, options):
         if not mysql:
             raise ImproperlyConfigured('MySQLdb must be installed on the system')
-        return mysql.connect(**kwargs)
+        return mysql.connect(
+        	host=options["host"], 
+        	db=options["database"], 
+        	user=options["user"], 
+        	passwd=options["password"])
 
     def get_field_overrides(self):
         return {
@@ -38,8 +42,8 @@ class MySQLAdapter(BaseAdapter):
 
         
 class MySQLDatabase(Database):
-    def __init__(self, **connect_kwargs):
-        super(MySQLDatabase, self).__init__(MySQLAdapter(), **connect_kwargs)
+    def __init__(self, connect_kwargs):
+        super(MySQLDatabase, self).__init__(MySQLAdapter(), connect_kwargs)
     
     def get_indexes_for_table(self, table):
         res = self.execute('SHOW INDEXES IN %s;' % table)
