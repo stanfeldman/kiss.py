@@ -1,6 +1,8 @@
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
-from helpers import Singleton, Importer, DictHelper
+from putils.patterns import Singleton
+from putils.dynamics import Importer
+from putils.types import Dict
 from kiss.controllers.router import Router
 from kiss.views.base import Request, Response
 from beaker.middleware import SessionMiddleware
@@ -8,8 +10,7 @@ from werkzeug.wsgi import SharedDataMiddleware
 from kiss.core.events import Eventer, Event
 
 
-class Application(object):
-	__metaclass__ = Singleton
+class Application(Singleton):
 	
 	def __init__(self, options):
 		self.options = {
@@ -28,7 +29,7 @@ class Application(object):
 			},
 			"events": {}
 		}
-		self.options = DictHelper.merge(self.options, options)
+		self.options = Dict.merge(self.options, options)
 		self.eventer = Eventer(self.options["events"])
 		self.router = Router(self.options)
 		db_engine_class = self.options["models"]["engine"]

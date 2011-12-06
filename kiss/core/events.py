@@ -1,8 +1,7 @@
-from kiss.core.helpers import Singleton
+from putils.patterns import Singleton
 
 
-class Eventer(object):
-	__metaclass__ = Singleton
+class Eventer(Singleton):
 	
 	def __init__(self, mapping={}):
 		self.mapping = {}

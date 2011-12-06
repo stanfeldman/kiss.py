@@ -1,4 +1,5 @@
-from kiss.core.helpers import Singleton
+from putils.patterns import Singleton
 
-class Controller(object):
-	__metaclass__ = Singleton
+
+class Controller(Singleton):
+	pass

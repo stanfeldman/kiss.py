@@ -1,16 +1,15 @@
-import os
 from jinja2 import Environment, PackageLoader
-from kiss.core.helpers import DictHelper, Singleton
-import re
+from re import match
 from kiss.controllers.core import Controller
+from putils.patterns import Singleton
+from putils.types import Dict
 
 
-class Router(object):
-	__metaclass__ = Singleton
+class Router(Singleton):
 	
 	def __init__(self, options):
 		self.options = options
-		urls = DictHelper.flat_dict(self.options["urls"])
+		urls = Dict.flat_dict(self.options["urls"])
 		for k, v in urls.iteritems():
 			if issubclass(v, Controller):
 				urls[k] = v()
@@ -20,10 +19,10 @@ class Router(object):
 	def route(self, request):
 		for re_url, controller in self.options["urls"].iteritems():
 			path = request.path.lower()
-			match = re.match(re_url, request.path)
-			if match:
+			mtch = match(re_url, request.path)
+			if mtch:
 				print request.path
-				request.params = match.groupdict()
+				request.params = mtch.groupdict()
 				action = getattr(controller, request.method.lower())
 				response = action(request)
 				return response

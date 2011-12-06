@@ -8,11 +8,12 @@ import re
 import threading
 import time
 from kiss.core.exceptions import DoesNotExist, EmptyResultException
-from kiss.core.helpers import LogicHelper, Singleton
 from queries import SelectQuery, UpdateQuery, DeleteQuery, RawQuery
+from putils.patterns import Singleton
+from putils.types import Boolean
 
 
-class BaseAdapter(object):
+class BaseAdapter(Singleton):
     """
     The various subclasses of `BaseAdapter` provide a bridge between the high-
     level `Engine` abstraction and the underlying python libraries like
@@ -27,8 +28,6 @@ class BaseAdapter(object):
     - handle connections with the database
     - extract information from the database cursor
     """
-    
-    __metaclass__ = Singleton
     
     operations = {'eq': '= %s'}
     interpolation = '%s'
@@ -71,7 +70,7 @@ class BaseAdapter(object):
         return cursor.rowcount
 
 
-class Engine(object):
+class Engine(Singleton):
     """
     A high-level api for working with the supported database engines.  `Engine`
     provides a wrapper around some of the functions performed by the `Adapter`,
@@ -79,8 +78,6 @@ class Engine(object):
     - execution of SQL queries
     - creating and dropping tables and indexes
     """
-    
-    __metaclass__ = Singleton
     
     def __init__(self, adapter, connect_kwargs, threadlocals=False):
         self.adapter = adapter
@@ -157,7 +154,7 @@ class Engine(object):
                 'Field %s not on model %s' % (field, model_class)
             )
         
-        unique_expr = LogicHelper.ternary(unique, 'UNIQUE', '')
+        unique_expr = Boolean.ternary(unique, 'UNIQUE', '')
         
         query = framing % {
             'unique': unique_expr,
@@ -212,7 +209,7 @@ class Field(object):
         self.verbose_name = verbose_name
         self.help_text = help_text
         
-        kwargs['nullable'] = LogicHelper.ternary(self.null, '', ' NOT NULL')
+        kwargs['nullable'] = Boolean.ternary(self.null, '', ' NOT NULL')
         self.attributes.update(kwargs)
         
         Field._field_counter += 1
