@@ -2,14 +2,14 @@
 
 # Usage
 
-Break your app to views, controllers and models.
-Kiss.py uses Django-like templates from Jinja2.
-Controller is class inherited from class Controller and may have methods get, post, put, delete.
-These methods get Request object param and return Response object.
-Request and Response objects inherited from Werkzeug.
-Models consist of fields(class variables inherited from Field class).
-There is event dispatcher named Eventer. You can subscribe to event
-or publish event.
+	Break your app to views, controllers and models.
+	Kiss.py uses Django-like templates from Jinja2.
+	Controller is class inherited from class Controller and may have methods get, post, put, delete.
+	These methods get Request object param and return Response object.
+	Request and Response objects inherited from Werkzeug.
+	Models consist of fields(class variables inherited from Field class).
+	There is event dispatcher named Eventer. You can subscribe to event
+	or publish event.
 
 # main.py
 
