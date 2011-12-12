@@ -9,6 +9,7 @@ setup(
     version = "0.0.6",
     author = "Stanislav Feldman",
     description = ("MVC web framework on Gevent"),
+    url = "https://github.com/stanislavfeldman/kiss.py",
     keywords = "web framework gevent",
     packages=[
     	'kiss', "kiss.controllers", "kiss.core", "kiss.views"
