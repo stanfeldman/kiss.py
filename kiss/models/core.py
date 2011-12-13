@@ -8,7 +8,7 @@ import re
 import threading
 import time
 from kiss.core.exceptions import DoesNotExist, EmptyResultException
-from queries import SelectQuery, UpdateQuery, DeleteQuery, RawQuery
+from queries import SelectQuery, InsertQuery, UpdateQuery, DeleteQuery, RawQuery
 from putils.patterns import Singleton
 from putils.types import Boolean
 

@@ -1,4 +1,4 @@
-# Web framework on Gevent and Python
+# MVC web framework in Python with Gevent, Jinja2, Werkzeug
 
 # Usage
 
@@ -7,6 +7,7 @@
 	Controller is class inherited from class Controller and may have methods get, post, put, delete.
 	These methods get Request object param and return Response object.
 	Request and Response objects inherited from Werkzeug.
+	There is ORM with PostgreSQL, MySQL and SQLite support.
 	Models consist of fields(class variables inherited from Field class).
 	There is event dispatcher named Eventer. You can subscribe to event
 	or publish event.
