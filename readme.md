@@ -4,6 +4,9 @@
 
 	Break your app to views, controllers and models.
 	Kiss.py uses Django-like templates from Jinja2.
+	You can add your static path in settings and all css and javascript files will be minified.
+	Also html templates will be minified.
+	In css files you can use SCSS syntax.
 	Controller is class inherited from class Controller and may have methods get, post, put, delete.
 	These methods get Request object param and return Response object.
 	Request and Response objects inherited from Werkzeug.

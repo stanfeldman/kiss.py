@@ -4,6 +4,7 @@ import mimetypes
 from scss.parser import Stylesheet
 from jsmin import jsmin
 import os
+import shutil
 
 class StaticBuilder(Singleton):
 	def __init__(self):
@@ -12,6 +13,10 @@ class StaticBuilder(Singleton):
 		
 	def build(self, path):
 		self.path = path
+		try:
+			shutil.rmtree(self.path + "/build")
+		except:
+			pass
 		Dir.walk(path, self.build_file)
 		
 	def build_file(self, file):
