@@ -6,7 +6,7 @@ except:
 
 setup(
     name = "kiss.py",
-    version = "0.0.7",
+    version = "0.0.8",
     author = "Stanislav Feldman",
     description = ("MVC web framework in Python with Gevent, Jinja2, Werkzeug"),
     url = "https://github.com/stanislavfeldman/kiss.py",
@@ -14,7 +14,7 @@ setup(
     packages=[
     	'kiss', "kiss.controllers", "kiss.core", "kiss.views"
     ],
-    install_requires = ['gevent', "jinja2", "beaker", "werkzeug", "putils"],
+    install_requires = ['gevent', "jinja2", "compressinja", "beaker", "werkzeug", "putils"],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Software Development",

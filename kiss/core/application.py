@@ -57,7 +57,8 @@ class Application(Singleton):
 			except:
 				pass
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
-		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app)
+		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
+		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
 		self.eventer.publish(Event.APPLICATION_AFTER_LOAD, self)
 		self.server.serve_forever()
 		

@@ -14,7 +14,7 @@ class Router(Singleton):
 			if issubclass(v, Controller):
 				urls[k] = v()
 		self.options["urls"] = urls
-		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""))
+		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
 		
 	def route(self, request):
 		for re_url, controller in self.options["urls"].iteritems():
