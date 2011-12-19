@@ -1,7 +1,8 @@
 <html>
 	<head>
 		<title>{% block title %}{% endblock %}</title>
-		<script src="/scripts/j.js"></script>
+		<link rel="stylesheet" href="/styles/style.css">
+		<script src="/scripts/script.js"></script>
 	</head>
 	<body>
 		<div>{{ foo }}</div>
@@ -10,7 +11,7 @@
 		  <li><a href="{{ user.url }}">{{ user.username }}</a></li>
 		{% endfor %}
 		</ul>
-		<div>Blog: {{ blog.name }}</div>
+		<div id="navbar">Blog: {{ blog.name }}</div>
 		<ul>
 		{% for entry in blog.entry_set %}
 			<li>{{  entry.title }}</li>

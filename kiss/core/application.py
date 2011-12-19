@@ -8,6 +8,7 @@ from kiss.views.base import Request, Response
 from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 from kiss.core.events import Eventer, Event
+from kiss.views.static import StaticBuilder
 
 
 class Application(Singleton):
@@ -32,6 +33,7 @@ class Application(Singleton):
 		self.options = Dict.merge(self.options, options)
 		self.eventer = Eventer(self.options["events"])
 		self.router = Router(self.options)
+		self.static_builder = StaticBuilder()
 		db_engine_class = self.options["models"]["engine"]
 		self.db_engine = db_engine_class(self.options["models"])
 			
@@ -53,9 +55,11 @@ class Application(Singleton):
 		if "static_path" in self.options["views"]:
 			try:
 				static_path = Importer.module_path(self.options["views"]["static_path"])
-				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': static_path})
 			except:
 				pass
+			if static_path:
+				self.static_builder.build(static_path)
+				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': static_path + "/build"})
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
 		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
