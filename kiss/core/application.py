@@ -34,8 +34,9 @@ class Application(Singleton):
 		self.eventer = Eventer(self.options["events"])
 		self.router = Router(self.options)
 		self.static_builder = StaticBuilder()
-		db_engine_class = self.options["models"]["engine"]
-		self.db_engine = db_engine_class(self.options["models"])
+		if "models" in self.options:
+			db_engine_class = self.options["models"]["engine"]
+			self.db_engine = db_engine_class(self.options["models"])
 			
 	def wsgi_app(self, options, start_response):
 		request = Request(options)
