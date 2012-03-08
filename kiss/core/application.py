@@ -55,12 +55,12 @@ class Application(Singleton):
 		}
 		if "static_path" in self.options["views"]:
 			try:
-				static_path = Importer.module_path(self.options["views"]["static_path"])
+				self.options["views"]["static_path"] = Importer.module_path(self.options["views"]["static_path"])
 			except:
 				pass
-			if static_path:
-				self.static_builder.build(static_path)
-				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': static_path + "/build"})
+			if self.options["views"]["static_path"]:
+				self.static_builder.build(self.options["views"]["static_path"])
+				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': self.options["views"]["static_path"] + "/build"})
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
 		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)

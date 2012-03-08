@@ -6,10 +6,31 @@ from jsmin import jsmin
 import os
 import shutil
 
-class StaticBuilder(Singleton):
+
+class StaticCompiler(Singleton):
 	def __init__(self):
 		self.css_parser = Stylesheet(options={"compress": True})
+		
+	def compile_file(self, filepath):
+		mimetype = mimetypes.guess_type(filepath)[0]
+		return self.compile_text(self.get_content(filepath), mimetype)
+		
+	def compile_text(self, text, mimetype):
+		result = ""
+		if mimetype == "text/css":
+			result = self.css_parser.loads(text)
+		elif mimetype == "application/javascript":
+			result = jsmin(text)
+		return result
+		
+	def get_content(self, file):
+		return open(file).read()
+
+
+class StaticBuilder(Singleton):
+	def __init__(self):
 		self.path = ""
+		self.compiler = StaticCompiler()
 		
 	def build(self, path):
 		self.path = path
@@ -20,13 +41,8 @@ class StaticBuilder(Singleton):
 		Dir.walk(path, self.build_file)
 		
 	def build_file(self, file):
-		mime_type = mimetypes.guess_type(file)[0]
 		new_path = self.path + "/build" + file.replace(self.path, "")
-		result = ""
-		if mime_type == "text/css":
-			result = self.css_parser.loads(self.get_content(file))
-		elif mime_type == "application/javascript":
-			result = jsmin(self.get_content(file))
+		result = self.compiler.compile_file(file)
 		if result:
 			try:
 				os.makedirs(os.path.dirname(new_path))
@@ -34,6 +50,3 @@ class StaticBuilder(Singleton):
 				pass
 			with open(new_path, "w") as f:
 				f.write(result)
-				
-	def get_content(self, file):
-		return open(file).read()

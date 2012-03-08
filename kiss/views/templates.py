@@ -2,10 +2,21 @@ from kiss.views.base import Response
 from kiss.core.application import Application
 
 
+class Template(object):
+	@staticmethod
+	def text_by_path(path, context={}):
+		return Application().options["views"]["templates_path"].get_template(path).render(context).encode("utf-8")
+		
+	@staticmethod
+	def text_by_text(text, context={}):
+		return Application().options["views"]["templates_path"].from_string(text).render(context).encode("utf-8")
+		
+
 class TemplateResponse(Response):
 	def __init__(self, path, context={}, **argw):
-		self.application = Application()
-		self.template = self.application.options["views"]["templates_path"].get_template(path)
-		self.context = context
-		super(TemplateResponse, self).__init__(self.template.render(self.context).encode("utf-8"), **argw)
-		print self
+		super(TemplateResponse, self).__init__(Template.text_by_path(path, context), **argw)
+		
+				
+class TextResponse(Response):
+	def __init__(self, text, context={}, **argw):
+		super(TextResponse, self).__init__(Template.text_by_text(text, context), **argw)

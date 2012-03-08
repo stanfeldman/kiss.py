@@ -14,7 +14,9 @@ class Request(werkzeug.wrappers.Request):
 
 class Response(werkzeug.wrappers.Response):
 	def __init__(self, text, **argw):
-		super(Response, self).__init__(text, mimetype="text/html", **argw)
+		if "mimetype" not in argw:
+			argw["mimetype"] = "text/html"
+		super(Response, self).__init__(text, **argw)
 	
 	@staticmethod	
 	def redirect(path):
