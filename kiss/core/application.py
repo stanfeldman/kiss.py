@@ -9,6 +9,7 @@ from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 from kiss.core.events import Eventer, Event
 from kiss.views.static import StaticBuilder
+from kiss.models import Model
 
 
 class Application(Singleton):
@@ -35,8 +36,15 @@ class Application(Singleton):
 		self.router = Router(self.options)
 		self.static_builder = StaticBuilder()
 		if "models" in self.options:
-			db_engine_class = self.options["models"]["engine"]
-			self.db_engine = db_engine_class(self.options["models"])
+			db_engine = self.options["models"].pop("engine")
+			db_name = self.options["models"].pop("database")
+			self.db_engine = db_engine(db_name, **self.options["models"])
+			self.db_engine.connect()
+			for m in Model.__subclasses__():
+				m._meta.database = self.db_engine
+			
+	def __del__(self):
+		self.db_engine.close()
 			
 	def wsgi_app(self, options, start_response):
 		request = Request(options)

@@ -1,7 +1,7 @@
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
 from kiss.core.application import Event
-from kiss.models.adapters.postgresql import PostgresqlEngine
+from kiss.models import SqliteDatabase
 
 
 options = {
@@ -27,11 +27,11 @@ options = {
 		Event.APPLICATION_AFTER_LOAD: [Controller2.application_after_load]
 	},
 	"models": {
-		"engine": PostgresqlEngine,
-		"host": "localhost",
-		"database": 'test',
-		"user": 'postgres',
-		"password": "postgres"
+		"engine": SqliteDatabase,
+		#"host": "localhost",
+		"database": 'test'#,
+		#"user": 'postgres',
+		#"password": "postgres"
 	}
 }
 
