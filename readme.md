@@ -10,7 +10,7 @@
 	Controller is class inherited from class Controller and may have methods get, post, put, delete.
 	These methods get Request object param and return Response object.
 	Request and Response objects inherited from Werkzeug.
-	There is ORM with PostgreSQL, MySQL and SQLite support.
+	There is ORM with PostgreSQL, MySQL and SQLite support by Peewee.
 	Models consist of fields(class variables inherited from Field class).
 	There is event dispatcher named Eventer. You can subscribe to event
 	or publish event.
@@ -27,7 +27,7 @@
 	from controllers.controller1 import Controller1
 	from controllers.controller2 import Controller2
 	from kiss.core.application import Event
-	from kiss.models.adapters.postgresql import PostgresqlDatabase
+	from kiss.models import PostgresqlDatabase
 	options = {
 		"application": {
 			"address": "127.0.0.1",
