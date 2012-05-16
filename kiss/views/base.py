@@ -17,7 +17,8 @@ class Response(werkzeug.wrappers.Response):
 		if "mimetype" not in argw:
 			argw["mimetype"] = "text/html"
 		super(Response, self).__init__(text, **argw)
-	
-	@staticmethod	
-	def redirect(path):
+
+
+class RedirectResponse(werkzeug.wrappers.Response):
+	def __new__(cls, path):
 		return redirect(path)
