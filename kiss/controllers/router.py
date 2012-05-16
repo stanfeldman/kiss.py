@@ -19,9 +19,10 @@ class Router(Singleton):
 	def route(self, request):
 		for re_url, controller in self.options["urls"].iteritems():
 			path = request.path.lower()
-			mtch = match(re_url, request.path)
+			if path[len(path)-1] == "/":
+				path = path.rstrip('/')
+			mtch = match(re_url, path)
 			if mtch:
-				print request.path
 				request.params = mtch.groupdict()
 				action = getattr(controller, request.method.lower())
 				response = action(request)
