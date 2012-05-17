@@ -3,12 +3,14 @@ from re import match
 from kiss.controllers.core import Controller
 from putils.patterns import Singleton
 from putils.types import Dict
+from kiss.core.exceptions import *
+from kiss.core.events import Eventer
 
 
 class Router(Singleton):
-	
 	def __init__(self, options):
 		self.options = options
+		self.eventer = Eventer()
 		urls = Dict.flat_dict(self.options["urls"])
 		for k, v in urls.iteritems():
 			if issubclass(v, Controller):
@@ -17,6 +19,7 @@ class Router(Singleton):
 		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
 		
 	def route(self, request):
+		eventer = Eventer()
 		for re_url, controller in self.options["urls"].iteritems():
 			path = request.path.lower()
 			if path[len(path)-1] == "/":
@@ -24,7 +27,19 @@ class Router(Singleton):
 			mtch = match(re_url, path)
 			if mtch:
 				request.params = mtch.groupdict()
-				action = getattr(controller, request.method.lower())
-				response = action(request)
-				return response
+				try:
+					action = getattr(controller, request.method.lower())
+					response = action(request)
+					return response
+				except HTTPException, e:
+					return self.get_err_page(e, request)
+				except Exception, e:
+					return self.get_err_page(InternalServerError(), request)
+		return self.get_err_page(NotFound(), request)
+		
+	def get_err_page(self, err, request):
+		err_page = self.eventer.publish_and_get_result(err.code, request)
+		if err_page:
+			return err_page
+		return err
 		

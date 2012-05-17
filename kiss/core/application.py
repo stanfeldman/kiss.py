@@ -49,8 +49,6 @@ class Application(Singleton):
 	def wsgi_app(self, options, start_response):
 		request = Request(options)
 		response = self.router.route(request)
-		if not response:
-			response = Response("404 Not Found")
 		return response(options, start_response)
 	
 	def start(self):
@@ -72,7 +70,7 @@ class Application(Singleton):
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
 		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
-		self.eventer.publish(Event.APPLICATION_AFTER_LOAD, self)
+		self.eventer.publish(Event.ApplicationAfterLoad, self)
 		self.server.serve_forever()
 		
 	def stop(self):

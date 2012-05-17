@@ -24,7 +24,7 @@ options = {
 		"static_path": "views.static"
 	},
 	"events": {
-		Event.APPLICATION_AFTER_LOAD: [Controller2.application_after_load]
+		Event.ApplicationAfterLoad: [Controller2.application_after_load]
 	},
 	"models": {
 		"engine": SqliteDatabase,
