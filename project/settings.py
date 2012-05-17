@@ -2,6 +2,7 @@ from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
 from kiss.core.application import Event
 from kiss.models import SqliteDatabase
+from kiss.core.exceptions import InternalServerError
 
 
 options = {
@@ -24,7 +25,8 @@ options = {
 		"static_path": "views.static"
 	},
 	"events": {
-		Event.ApplicationAfterLoad: [Controller2.application_after_load]
+		Event.ApplicationAfterLoad: Controller2.application_after_load,
+		InternalServerError.code: Controller2.internal_server_error
 	},
 	"models": {
 		"engine": SqliteDatabase,

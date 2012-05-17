@@ -37,3 +37,6 @@ class Controller2(Controller):
 		print "app loaded"
 		Blog.create_table(fail_silently=True)
 		Entry.create_table(fail_silently=True)
+		
+	def internal_server_error(self, request):
+		return Response("<h1>oh oh 500 error</h1>")
