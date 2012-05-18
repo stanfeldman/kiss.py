@@ -5,6 +5,7 @@ from putils.patterns import Singleton
 from putils.types import Dict
 from kiss.core.exceptions import *
 from kiss.core.events import Eventer
+import traceback
 
 
 class Router(Singleton):
@@ -36,13 +37,13 @@ class Router(Singleton):
 					response = action(request)
 					return response
 				except HTTPException, e:
-					return self.get_err_page(e, request)
+					return self.get_err_page(e)
 				except Exception, e:
-					return self.get_err_page(InternalServerError(), request)
-		return self.get_err_page(NotFound(), request)
+					return self.get_err_page(InternalServerError(description=traceback.format_exc()))
+		return self.get_err_page(NotFound(description="Not found %s" % request.url))
 		
-	def get_err_page(self, err, request):
-		err_page = self.eventer.publish_and_get_result(err.code, request)
+	def get_err_page(self, err):
+		err_page = self.eventer.publish_and_get_result(err.code, err)
 		if err_page:
 			return err_page
 		return err
