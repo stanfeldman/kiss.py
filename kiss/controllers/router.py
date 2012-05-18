@@ -1,5 +1,5 @@
 from jinja2 import Environment, PackageLoader
-from re import match
+import re
 from kiss.controllers.core import Controller
 from putils.patterns import Singleton
 from putils.types import Dict
@@ -12,10 +12,14 @@ class Router(Singleton):
 		self.options = options
 		self.eventer = Eventer()
 		urls = Dict.flat_dict(self.options["urls"])
+		new_urls = {}
 		for k, v in urls.iteritems():
 			if issubclass(v, Controller):
-				urls[k] = v()
-		self.options["urls"] = urls
+				if k[len(k)-1] == "/":
+					k = k.rstrip('/')
+				k = re.compile(k)
+				new_urls[k] = v()
+		self.options["urls"] = new_urls
 		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
 		
 	def route(self, request):
@@ -24,7 +28,7 @@ class Router(Singleton):
 			path = request.path.lower()
 			if path[len(path)-1] == "/":
 				path = path.rstrip('/')
-			mtch = match(re_url, path)
+			mtch = re_url.match(path)
 			if mtch:
 				request.params = mtch.groupdict()
 				try:
