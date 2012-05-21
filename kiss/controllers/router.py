@@ -35,6 +35,8 @@ class Router(Singleton):
 				try:
 					action = getattr(controller, request.method.lower())
 					response = action(request)
+					if not response:
+						break
 					return response
 				except HTTPException, e:
 					return self.get_err_page(e)
