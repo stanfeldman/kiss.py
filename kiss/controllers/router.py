@@ -15,11 +15,10 @@ class Router(Singleton):
 		urls = Dict.flat_dict(self.options["urls"])
 		new_urls = {}
 		for k, v in urls.iteritems():
-			if issubclass(v, Controller):
-				if k[len(k)-1] == "/":
-					k = k.rstrip('/')
-				k = re.compile(k)
-				new_urls[k] = v()
+			if k[len(k)-1] == "/":
+				k = k.rstrip('/')
+			k = re.compile(k)
+			new_urls[k] = v()
 		self.options["urls"] = new_urls
 		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
 		
