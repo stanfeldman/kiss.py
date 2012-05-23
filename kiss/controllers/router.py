@@ -15,8 +15,8 @@ class Router(Singleton):
 		urls = Dict.flat_dict(self.options["urls"])
 		new_urls = {}
 		for k, v in urls.iteritems():
-			if k[len(k)-1] == "/":
-				k = k.rstrip('/')
+			if k[len(k)-2] == "/":
+				k = k[:len(k)-2] + k[len(k)-1]
 			k = re.compile(k)
 			new_urls[k] = v()
 		self.options["urls"] = new_urls

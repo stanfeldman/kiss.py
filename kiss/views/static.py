@@ -36,9 +36,9 @@ class StaticBuilder(Singleton):
 		self.path = path
 		try:
 			shutil.rmtree(self.path + "/build")
+			Dir.walk(path, self.build_file)
 		except:
 			pass
-		Dir.walk(path, self.build_file)
 		
 	def build_file(self, file):
 		new_path = self.path + "/build" + file.replace(self.path, "")
