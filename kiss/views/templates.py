@@ -1,4 +1,4 @@
-from kiss.views.base import Response
+from kiss.views.core import Response
 from kiss.core.application import Application
 
 

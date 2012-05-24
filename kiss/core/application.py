@@ -4,7 +4,7 @@ from putils.patterns import Singleton
 from putils.dynamics import Importer
 from putils.types import Dict
 from kiss.controllers.router import Router
-from kiss.views.base import Request, Response
+from kiss.views.core import Request, Response
 from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 from kiss.core.events import Eventer, Event
