@@ -21,6 +21,8 @@ class StaticCompiler(Singleton):
 			result = self.css_parser.loads(text)
 		elif mimetype == "application/javascript":
 			result = jsmin(text)
+		else:
+			result = text
 		return result
 		
 	def get_content(self, file):
