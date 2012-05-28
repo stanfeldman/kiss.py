@@ -1,7 +1,7 @@
 from putils.patterns import Singleton
 from putils.filesystem import Dir
 import mimetypes
-from scss.parser import Stylesheet
+from scss import Scss
 from jsmin import jsmin
 import os
 import shutil
@@ -9,7 +9,7 @@ import shutil
 
 class StaticCompiler(Singleton):
 	def __init__(self):
-		self.css_parser = Stylesheet(options={"compress": True})
+		self.css_parser = Scss()
 		
 	def compile_file(self, filepath):
 		mimetype = mimetypes.guess_type(filepath)[0]
@@ -18,7 +18,7 @@ class StaticCompiler(Singleton):
 	def compile_text(self, text, mimetype):
 		result = ""
 		if mimetype == "text/css":
-			result = self.css_parser.loads(text)
+			result = self.css_parser.compile(text)
 		elif mimetype == "application/javascript":
 			result = jsmin(text)
 		else:
