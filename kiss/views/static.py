@@ -5,6 +5,7 @@ from scss import Scss
 from jsmin import jsmin
 import os
 import shutil
+import traceback
 
 
 class StaticCompiler(Singleton):
@@ -38,9 +39,12 @@ class StaticBuilder(Singleton):
 		self.path = path
 		try:
 			shutil.rmtree(self.path + "/build")
-			Dir.walk(path, self.build_file)
 		except:
 			pass
+		try:
+			Dir.walk(path, self.build_file)
+		except:
+			print traceback.format_exc()
 		
 	def build_file(self, file):
 		new_path = self.path + "/build" + file.replace(self.path, "")
