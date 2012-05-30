@@ -1,6 +1,7 @@
 from putils.patterns import Singleton
 from putils.filesystem import Dir
 import mimetypes
+import scss
 from scss import Scss
 from jsmin import jsmin
 import os
@@ -9,8 +10,9 @@ import traceback
 
 
 class StaticCompiler(Singleton):
-	def __init__(self):
+	def __init__(self, path):
 		self.css_parser = Scss()
+		scss.LOAD_PATHS = path
 		
 	def compile_file(self, filepath):
 		mimetype = mimetypes.guess_type(filepath)[0]
@@ -31,18 +33,17 @@ class StaticCompiler(Singleton):
 
 
 class StaticBuilder(Singleton):
-	def __init__(self):
-		self.path = ""
-		self.compiler = StaticCompiler()
-		
-	def build(self, path):
+	def __init__(self, path):
 		self.path = path
+		self.compiler = StaticCompiler(self.path)
+		
+	def build(self):
 		try:
 			shutil.rmtree(self.path + "/build")
 		except:
 			pass
 		try:
-			Dir.walk(path, self.build_file)
+			Dir.walk(self.path, self.build_file)
 		except:
 			print traceback.format_exc()
 		

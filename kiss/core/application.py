@@ -10,11 +10,13 @@ from werkzeug.wsgi import SharedDataMiddleware
 from kiss.core.events import Eventer, Event
 from kiss.views.static import StaticBuilder
 from kiss.models import Model
+import logging
 
 
 class Application(Singleton):
 	
 	def __init__(self, options):
+		logging.basicConfig(level=logging.CRITICAL)
 		self.options = {
 			"application": {
 				"address": "127.0.0.1",
@@ -34,7 +36,14 @@ class Application(Singleton):
 		self.options = Dict.merge(self.options, options)
 		self.eventer = Eventer(self.options["events"])
 		self.router = Router(self.options)
-		self.static_builder = StaticBuilder()
+		self.static_builder = None
+		if "static_path" in self.options["views"]:
+			try:
+				self.options["views"]["static_path"] = Importer.module_path(self.options["views"]["static_path"])
+			except:
+				pass
+			if self.options["views"]["static_path"]:
+				self.static_builder = StaticBuilder(self.options["views"]["static_path"])
 		if "models" in self.options:
 			db_engine = self.options["models"].pop("engine")
 			db_name = self.options["models"].pop("database")
@@ -59,14 +68,9 @@ class Application(Singleton):
 			'session.encrypt_key': self.options["views"]['session_encrypt_key'],
 			'session.validate_key': self.options["views"]['session_validate_key']
 		}
-		if "static_path" in self.options["views"]:
-			try:
-				self.options["views"]["static_path"] = Importer.module_path(self.options["views"]["static_path"])
-			except:
-				pass
-			if self.options["views"]["static_path"]:
-				self.static_builder.build(self.options["views"]["static_path"])
-				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': self.options["views"]["static_path"] + "/build"})
+		if self.static_builder:
+			self.static_builder.build()
+			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': self.options["views"]["static_path"] + "/build"})
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
 		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
