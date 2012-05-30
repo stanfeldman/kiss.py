@@ -25,7 +25,7 @@ options = {
 		"static_path": "views.static"
 	},
 	"events": {
-		Event.ApplicationAfterLoad: Controller2.application_after_load,
+		Event.ApplicationStarted: Controller2.application_after_load,
 		InternalServerError.code: Controller2.internal_server_error
 	},
 	"models": {

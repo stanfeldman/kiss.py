@@ -33,4 +33,5 @@ class Eventer(Singleton):
 			return None
 		
 class Event(object):
-	ApplicationAfterLoad = 0
+	ApplicationStarted = 0
+	ApplicationStopped = 1
