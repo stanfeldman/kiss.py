@@ -48,7 +48,7 @@
 			"static_path": "views.static"
 		},
 		"events": {
-			Event.APPLICATION_AFTER_LOAD: [Controller2.application_after_load]
+			Event.ApplicationStarted: [Controller2.application_after_load]
 		},
 		"models": {
 			"engine": PostgresqlDatabase,
@@ -61,7 +61,7 @@
 	
 # models/models.py
 
-	from kiss.models.core import Model, CharField, TextField, DateTimeField, BooleanField, ForeignKeyField
+	from kiss.models import Model, CharField, TextField, DateTimeField, BooleanField, ForeignKeyField
 	class Blog(Model):
 		creator = CharField()
 		name = CharField()
