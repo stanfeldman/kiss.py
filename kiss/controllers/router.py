@@ -20,7 +20,8 @@ class Router(Singleton):
 			k = re.compile(k)
 			new_urls[k] = v()
 		self.options["urls"] = new_urls
-		self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
+		if "templates_path" in self.options["views"]:
+			self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
 		
 	def route(self, request):
 		eventer = Eventer()
