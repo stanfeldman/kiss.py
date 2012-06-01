@@ -44,6 +44,9 @@ class JsonResponse(Response):
 	def fix_peewee_obj(self, obj):
 		new_dict = {}
 		for key,value in obj.__dict__.items():
-			new_dict[key[2:]] = value
+			if key[:2] == "__":
+				new_dict[key[2:]] = value
+			else:
+				new_dict[key] = value
 		obj.__dict__ = new_dict
 		return obj
