@@ -49,6 +49,7 @@ class Application(Singleton):
 			db_name = self.options["models"].pop("database")
 			self.db_engine = db_engine(db_name, **self.options["models"])
 			self.db_engine.connect()
+			self.db_engine.set_autocommit(True)
 			for m in Model.__subclasses__():
 				m._meta.database = self.db_engine
 			

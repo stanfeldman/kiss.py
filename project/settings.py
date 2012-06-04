@@ -31,7 +31,7 @@ options = {
 	"models": {
 		"engine": SqliteDatabase,
 		#"host": "localhost",
-		"database": 'test'#,
+		"database": 'test.sqldb'#,
 		#"user": 'postgres',
 		#"password": "postgres"
 	}
