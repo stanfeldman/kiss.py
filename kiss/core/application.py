@@ -14,10 +14,29 @@ import logging
 
 
 class Application(Singleton):
-	
 	def __init__(self, options):
+		self.options = Application.init_options(options)
+		self.eventer = Eventer(self.options["events"])
+		self.router = Router(self.options)
+		self.options, self.db_engine = Application.init_db(self.options)
+		self.options, self.static_builder = Application.init_static(self.options)
+		session_options = {
+			'session.type': self.options["views"]['session_type'],
+			"session.auto": self.options["views"]["session_auto"],
+			'session.cookie_expires': self.options["views"]['session_cookie_expires'],
+			'session.encrypt_key': self.options["views"]['session_encrypt_key'],
+			'session.validate_key': self.options["views"]['session_validate_key']
+		}
+		if self.static_builder:
+			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': self.options["views"]["static_path"] + "/build"})
+		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
+		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
+		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
+	
+	@staticmethod	
+	def init_options(options):
 		logging.basicConfig(level=logging.CRITICAL)
-		self.options = {
+		default_options = {
 			"application": {
 				"address": "127.0.0.1",
 				"port": 8080
@@ -33,28 +52,38 @@ class Application(Singleton):
 			},
 			"events": {}
 		}
-		self.options = Dict.merge(self.options, options)
-		self.eventer = Eventer(self.options["events"])
-		self.router = Router(self.options)
-		self.static_builder = None
-		if "static_path" in self.options["views"]:
-			try:
-				self.options["views"]["static_path"] = Importer.module_path(self.options["views"]["static_path"])
-			except:
-				pass
-			if self.options["views"]["static_path"]:
-				self.static_builder = StaticBuilder(self.options["views"]["static_path"])
-		if "models" in self.options:
-			db_engine = self.options["models"].pop("engine")
-			db_name = self.options["models"].pop("database")
-			self.db_engine = db_engine(db_name, **self.options["models"])
-			self.db_engine.connect()
-			self.db_engine.set_autocommit(True)
-			for m in Model.__subclasses__():
-				m._meta.database = self.db_engine
+		return Dict.merge(default_options, options)
+		
+	@staticmethod
+	def init_static(options):
+		static_builder = None
+		if "static_path" not in options["views"]:
+			return (options, static_builder)
+		try:
+			options["views"]["static_path"] = Importer.module_path(options["views"]["static_path"])
+		except:
+			pass
+		if options["views"]["static_path"]:
+			static_builder = StaticBuilder(options["views"]["static_path"])
+			static_builder.build()
+		return (options, static_builder)
+	
+	@staticmethod			
+	def init_db(options):
+		if "models" not in options:
+			return
+		db_engine_class = options["models"].pop("engine")
+		db_name = options["models"].pop("database")
+		db_engine = db_engine_class(db_name, **options["models"])
+		db_engine.connect()
+		db_engine.set_autocommit(True)
+		for m in Model.__subclasses__():
+			m._meta.database = db_engine
+		return (options, db_engine)
 			
 	def __del__(self):
-		self.db_engine.close()
+		if self.db_engine:
+			self.db_engine.close()
 			
 	def wsgi_app(self, options, start_response):
 		request = Request(options)
@@ -62,19 +91,6 @@ class Application(Singleton):
 		return response(options, start_response)
 	
 	def start(self):
-		session_options = {
-			'session.type': self.options["views"]['session_type'],
-			"session.auto": self.options["views"]["session_auto"],
-			'session.cookie_expires': self.options["views"]['session_cookie_expires'],
-			'session.encrypt_key': self.options["views"]['session_encrypt_key'],
-			'session.validate_key': self.options["views"]['session_validate_key']
-		}
-		if self.static_builder:
-			self.static_builder.build()
-			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': self.options["views"]["static_path"] + "/build"})
-		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
-		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
-		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
 		self.eventer.publish(Event.ApplicationStarted, self)
 		self.server.serve_forever()
 		
