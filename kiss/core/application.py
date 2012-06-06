@@ -1,3 +1,5 @@
+import gevent
+import signal
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
 from putils.patterns import Singleton
@@ -16,22 +18,13 @@ import logging
 class Application(Singleton):
 	def __init__(self, options):
 		self.options = Application.init_options(options)
-		self.eventer = Eventer(self.options["events"])
-		self.router = Router(self.options)
+		self.options, self.eventer = Application.init_eventer(options)
+		self.options, self.router = Application.init_router(options)
 		self.options, self.db_engine = Application.init_db(self.options)
 		self.options, self.static_builder = Application.init_static(self.options)
-		session_options = {
-			'session.type': self.options["views"]['session_type'],
-			"session.auto": self.options["views"]["session_auto"],
-			'session.cookie_expires': self.options["views"]['session_cookie_expires'],
-			'session.encrypt_key': self.options["views"]['session_encrypt_key'],
-			'session.validate_key': self.options["views"]['session_validate_key']
-		}
-		if self.static_builder:
-			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': self.options["views"]["static_path"] + "/build"})
-		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
-		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
-		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
+		self.options, self.wsgi_app = Application.init_session(self.options, self.wsgi_app)
+		self.options, self.wsgi_app = Application.init_static_server(self.options, self.wsgi_app)
+		self.options, self.server = Application.init_server(self.options, self.wsgi_app)
 	
 	@staticmethod	
 	def init_options(options):
@@ -53,6 +46,14 @@ class Application(Singleton):
 			"events": {}
 		}
 		return Dict.merge(default_options, options)
+		
+	@staticmethod	
+	def init_eventer(options):
+		return (options, Eventer(options["events"]))
+		
+	@staticmethod	
+	def init_router(options):
+		return (options, Router(options))
 		
 	@staticmethod
 	def init_static(options):
@@ -80,6 +81,29 @@ class Application(Singleton):
 		for m in Model.__subclasses__():
 			m._meta.database = db_engine
 		return (options, db_engine)
+		
+	@staticmethod
+	def init_session(options, wsgi_app):
+		session_options = {
+			'session.type': options["views"]['session_type'],
+			"session.auto": options["views"]["session_auto"],
+			'session.cookie_expires': options["views"]['session_cookie_expires'],
+			'session.encrypt_key': options["views"]['session_encrypt_key'],
+			'session.validate_key': options["views"]['session_validate_key']
+		}
+		return (options, SessionMiddleware(wsgi_app, session_options, environ_key="session"))
+		
+	@staticmethod
+	def init_static_server(options, wsgi_app):
+		if "static_path" not in options["views"]:
+			return (options, wsgi_app)
+		else:
+			return (options, SharedDataMiddleware(wsgi_app, {'/': options["views"]["static_path"] + "/build"}))
+			
+	@staticmethod
+	def init_server(options, wsgi_app):
+		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], options["application"].iteritems()))
+		return (options, WSGIServer((options["application"]["address"], options["application"]["port"]), wsgi_app, **kwargs))
 			
 	def __del__(self):
 		if self.db_engine:
@@ -91,6 +115,8 @@ class Application(Singleton):
 		return response(options, start_response)
 	
 	def start(self):
+		gevent.signal(signal.SIGTERM, self.stop)
+		gevent.signal(signal.SIGINT, self.stop)
 		self.eventer.publish(Event.ApplicationStarted, self)
 		self.server.serve_forever()
 		
