@@ -120,6 +120,10 @@ class Application(Singleton):
 		self.eventer.publish(Event.ApplicationStarted, self)
 		self.server.serve_forever()
 		
+	def start_no_wait(self):
+		self.eventer.publish(Event.ApplicationStarted, self)
+		self.server.start()
+		
 	def stop(self):
 		self.eventer.publish(Event.ApplicationStopped, self)
 		self.server.stop()
