@@ -72,7 +72,7 @@ class Application(Singleton):
 	@staticmethod			
 	def init_db(options):
 		if "models" not in options:
-			return
+			return (options, None)
 		db_engine_class = options["models"].pop("engine")
 		db_name = options["models"].pop("database")
 		db_engine = db_engine_class(db_name, **options["models"])
