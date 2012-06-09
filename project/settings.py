@@ -1,6 +1,14 @@
+from os import path
+current_dir = path.dirname(path.abspath(__file__))
+import sys
+sys.path.append(path.join(current_dir, "../../kiss.py"))
+sys.path.append(path.join(current_dir, "../../compressinja/"))
+sys.path.append(path.join(current_dir, "../../putils/"))
+from kiss.core.application import Application
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
-from kiss.core.application import Event
+from kiss.core.events import ApplicationStarted
+from kiss.controllers.events import BeforeControllerAction
 from kiss.models import SqliteDatabase
 from kiss.core.exceptions import InternalServerError
 
@@ -25,13 +33,14 @@ options = {
 		"static_path": "views.static"
 	},
 	"events": {
-		Event.ApplicationStarted: Controller2.application_after_load,
+		ApplicationStarted: Controller2.application_after_load,
+		BeforeControllerAction: Controller2.before_controller_action,
 		InternalServerError.code: Controller2.internal_server_error
 	},
 	"models": {
 		"engine": SqliteDatabase,
 		#"host": "localhost",
-		"database": 'test.sqldb'#,
+		"database": path.join(current_dir, "kiss_py_project.sqldb")#,#,
 		#"user": 'postgres',
 		#"password": "postgres"
 	}

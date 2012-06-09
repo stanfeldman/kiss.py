@@ -9,7 +9,7 @@ from kiss.controllers.router import Router
 from kiss.views.core import Request, Response
 from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
-from kiss.core.events import Eventer, Event
+from kiss.core.events import Eventer, ApplicationStarted, ApplicationStopped
 from kiss.views.static import StaticBuilder
 from kiss.models import Model
 import logging
@@ -117,14 +117,14 @@ class Application(Singleton):
 	def start(self):
 		gevent.signal(signal.SIGTERM, self.stop)
 		gevent.signal(signal.SIGINT, self.stop)
-		self.eventer.publish(Event.ApplicationStarted, self)
+		self.eventer.publish(ApplicationStarted, self)
 		self.server.serve_forever()
 		
 	def start_no_wait(self):
-		self.eventer.publish(Event.ApplicationStarted, self)
+		self.eventer.publish(ApplicationStarted, self)
 		self.server.start()
 		
 	def stop(self):
-		self.eventer.publish(Event.ApplicationStopped, self)
+		self.eventer.publish(ApplicationStopped, self)
 		self.server.stop()
 

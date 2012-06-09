@@ -32,6 +32,5 @@ class Eventer(Singleton):
 		else:
 			return None
 		
-class Event(object):
-	ApplicationStarted = 0
-	ApplicationStopped = 1
+ApplicationStarted = 0
+ApplicationStopped = 1

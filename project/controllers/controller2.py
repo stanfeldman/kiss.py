@@ -8,6 +8,7 @@ from kiss.models import Model, SqliteDatabase
 	
 class Controller2(Controller):
 	def get(self, request):
+		print request.params
 		#publish some event
 		eventer = Eventer()
 		eventer.publish("some event", self)
@@ -37,6 +38,9 @@ class Controller2(Controller):
 		print "app loaded"
 		Blog.create_table(fail_silently=True)
 		Entry.create_table(fail_silently=True)
+		
+	def before_controller_action(self, request):
+		request.params["inserted_param"] = "hi)"
 		
 	def internal_server_error(self, request):
 		return Response("<h1>oh oh 500 error</h1>")

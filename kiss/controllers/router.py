@@ -6,6 +6,7 @@ from putils.types import Dict
 from kiss.core.exceptions import *
 from kiss.core.events import Eventer
 import traceback
+import events
 
 
 class Router(Singleton):
@@ -24,7 +25,6 @@ class Router(Singleton):
 			self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
 		
 	def route(self, request):
-		eventer = Eventer()
 		for re_url, controller in self.options["urls"].iteritems():
 			path = request.path.lower()
 			if path[len(path)-1] == "/":
@@ -33,8 +33,10 @@ class Router(Singleton):
 			if mtch:
 				request.params = mtch.groupdict()
 				try:
+					self.eventer.publish(events.BeforeControllerAction, request)
 					action = getattr(controller, request.method.lower())
 					response = action(request)
+					self.eventer.publish(events.AfterControllerAction, request, response)
 					if not response:
 						break
 					return response
