@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Views &mdash; kiss.py 0.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="kiss.py 0.3.0 documentation" href="index.html" />
+    <link rel="prev" title="Controllers" href="kiss.controllers.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="kiss.controllers.html" title="Controllers"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">kiss.py 0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="views">
+<h1>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-kiss.views.core">
+<span id="core"></span><h2>Core<a class="headerlink" href="#module-kiss.views.core" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kiss.views.core.JsonResponse">
+<em class="property">class </em><tt class="descclassname">kiss.views.core.</tt><tt class="descname">JsonResponse</tt><big>(</big><em>inp</em>, <em>**argw</em><big>)</big><a class="reference internal" href="_modules/kiss/views/core.html#JsonResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.core.JsonResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Json response. Pass any object you want, JsonResponse converts it to json.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kiss.views.core.RedirectResponse">
+<em class="property">class </em><tt class="descclassname">kiss.views.core.</tt><tt class="descname">RedirectResponse</tt><big>(</big><em>response=None</em>, <em>status=None</em>, <em>headers=None</em>, <em>mimetype=None</em>, <em>content_type=None</em>, <em>direct_passthrough=False</em><big>)</big><a class="reference internal" href="_modules/kiss/views/core.html#RedirectResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.core.RedirectResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Response for redirect. Pass path and server will do 302 request.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kiss.views.core.Request">
+<em class="property">class </em><tt class="descclassname">kiss.views.core.</tt><tt class="descname">Request</tt><big>(</big><em>options</em>, <em>**argw</em><big>)</big><a class="reference internal" href="_modules/kiss/views/core.html#Request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.core.Request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base request object inhereted from werkzeug Request.
+Added session object.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kiss.views.core.Response">
+<em class="property">class </em><tt class="descclassname">kiss.views.core.</tt><tt class="descname">Response</tt><big>(</big><em>text</em>, <em>**argw</em><big>)</big><a class="reference internal" href="_modules/kiss/views/core.html#Response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.core.Response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base response object inhereted from werkzeug Response.
+Text/html mimetype is default.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kiss.views.templates">
+<span id="templates"></span><h2>Templates<a class="headerlink" href="#module-kiss.views.templates" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kiss.views.templates.TemplateResponse">
+<em class="property">class </em><tt class="descclassname">kiss.views.templates.</tt><tt class="descname">TemplateResponse</tt><big>(</big><em>path</em>, <em>context={}</em>, <em>**argw</em><big>)</big><a class="reference internal" href="_modules/kiss/views/templates.html#TemplateResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.templates.TemplateResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template response via Jinja2. Pass template path and context.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kiss.views.static">
+<span id="static-files"></span><h2>Static files<a class="headerlink" href="#module-kiss.views.static" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kiss.views.static.StaticBuilder">
+<em class="property">class </em><tt class="descclassname">kiss.views.static.</tt><tt class="descname">StaticBuilder</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/kiss/views/static.html#StaticBuilder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.static.StaticBuilder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses StaticCompiler to minify and compile js and css.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kiss.views.static.StaticCompiler">
+<em class="property">class </em><tt class="descclassname">kiss.views.static.</tt><tt class="descname">StaticCompiler</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/kiss/views/static.html#StaticCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.views.static.StaticCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Static files minifier.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Views</a><ul>
+<li><a class="reference internal" href="#module-kiss.views.core">Core</a></li>
+<li><a class="reference internal" href="#module-kiss.views.templates">Templates</a></li>
+<li><a class="reference internal" href="#module-kiss.views.static">Static files</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="kiss.controllers.html"
+                        title="previous chapter">Controllers</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/kiss.views.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="kiss.controllers.html" title="Controllers"
+             >previous</a> |</li>
+        <li><a href="index.html">kiss.py 0.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Stanislav Feldman.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

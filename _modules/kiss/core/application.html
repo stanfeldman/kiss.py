@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>kiss.core.application &mdash; kiss.py 0.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="kiss.py 0.3.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">kiss.py 0.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for kiss.core.application</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">gevent</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">from</span> <span class="nn">gevent</span> <span class="kn">import</span> <span class="n">monkey</span><span class="p">;</span> <span class="n">monkey</span><span class="o">.</span><span class="n">patch_all</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">gevent.wsgi</span> <span class="kn">import</span> <span class="n">WSGIServer</span>
+<span class="kn">from</span> <span class="nn">putils.patterns</span> <span class="kn">import</span> <span class="n">Singleton</span>
+<span class="kn">from</span> <span class="nn">putils.dynamics</span> <span class="kn">import</span> <span class="n">Importer</span>
+<span class="kn">from</span> <span class="nn">putils.types</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">kiss.controllers.router</span> <span class="kn">import</span> <span class="n">Router</span>
+<span class="kn">from</span> <span class="nn">kiss.views.core</span> <span class="kn">import</span> <span class="n">Request</span><span class="p">,</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">beaker.middleware</span> <span class="kn">import</span> <span class="n">SessionMiddleware</span>
+<span class="kn">from</span> <span class="nn">werkzeug.wsgi</span> <span class="kn">import</span> <span class="n">SharedDataMiddleware</span>
+<span class="kn">from</span> <span class="nn">kiss.core.events</span> <span class="kn">import</span> <span class="n">Eventer</span><span class="p">,</span> <span class="n">ApplicationStarted</span><span class="p">,</span> <span class="n">ApplicationStopped</span>
+<span class="kn">from</span> <span class="nn">kiss.views.static</span> <span class="kn">import</span> <span class="n">StaticBuilder</span>
+<span class="kn">from</span> <span class="nn">kiss.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<div class="viewcode-block" id="Application"><a class="viewcode-back" href="../../../kiss.core.html#kiss.core.application.Application">[docs]</a><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="n">Singleton</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	Main class of your application.</span>
+<span class="sd">	Pass options to constructor and all subsystems(eventer, router, db_engine) will be configured.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_eventer</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_router</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_engine</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">static_builder</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_static</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wsgi_app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wsgi_app</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wsgi_app</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_static_server</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wsgi_app</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">Application</span><span class="o">.</span><span class="n">init_server</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wsgi_app</span><span class="p">)</span>
+	
+	<span class="nd">@staticmethod</span>	
+	<span class="k">def</span> <span class="nf">init_options</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+		<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">)</span>
+		<span class="n">default_options</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&quot;application&quot;</span><span class="p">:</span> <span class="p">{</span>
+				<span class="s">&quot;address&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+				<span class="s">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8080</span>
+			<span class="p">},</span>
+			<span class="s">&quot;views&quot;</span><span class="p">:</span> <span class="p">{</span>
+				<span class="c">#&quot;templates_path&quot;: &quot;views.templates&quot;,</span>
+				<span class="c">#&quot;static_path&quot;: &quot;views.static&quot;,</span>
+				<span class="s">&#39;session_type&#39;</span><span class="p">:</span> <span class="s">&quot;cookie&quot;</span><span class="p">,</span>
+				<span class="s">&quot;session_auto&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+				<span class="s">&#39;session_cookie_expires&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+				<span class="s">&#39;session_encrypt_key&#39;</span><span class="p">:</span><span class="s">&#39;sldk24j0jf09w0jfg24&#39;</span><span class="p">,</span>
+				<span class="s">&#39;session_validate_key&#39;</span><span class="p">:</span><span class="s">&#39;;l[pfghopkqeq1234,fs&#39;</span>
+			<span class="p">},</span>
+			<span class="s">&quot;events&quot;</span><span class="p">:</span> <span class="p">{}</span>
+		<span class="p">}</span>
+		<span class="k">return</span> <span class="n">Dict</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">default_options</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+		
+	<span class="nd">@staticmethod</span>	
+	<span class="k">def</span> <span class="nf">init_eventer</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">Eventer</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s">&quot;events&quot;</span><span class="p">]))</span>
+		
+	<span class="nd">@staticmethod</span>	
+	<span class="k">def</span> <span class="nf">init_router</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">Router</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
+		
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">init_static</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+		<span class="n">static_builder</span> <span class="o">=</span> <span class="bp">None</span>
+		<span class="k">if</span> <span class="s">&quot;static_path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">]:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">static_builder</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&quot;static_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Importer</span><span class="o">.</span><span class="n">module_path</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&quot;static_path&quot;</span><span class="p">])</span>
+		<span class="k">except</span><span class="p">:</span>
+			<span class="k">pass</span>
+		<span class="k">if</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&quot;static_path&quot;</span><span class="p">]:</span>
+			<span class="n">static_builder</span> <span class="o">=</span> <span class="n">StaticBuilder</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&quot;static_path&quot;</span><span class="p">])</span>
+			<span class="n">static_builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">static_builder</span><span class="p">)</span>
+	
+	<span class="nd">@staticmethod</span>			
+	<span class="k">def</span> <span class="nf">init_db</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+		<span class="k">if</span> <span class="s">&quot;models&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+		<span class="n">db_engine_class</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;models&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;engine&quot;</span><span class="p">)</span>
+		<span class="n">db_name</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;models&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s">&quot;database&quot;</span><span class="p">)</span>
+		<span class="n">db_engine</span> <span class="o">=</span> <span class="n">db_engine_class</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">[</span><span class="s">&quot;models&quot;</span><span class="p">])</span>
+		<span class="n">db_engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+		<span class="n">db_engine</span><span class="o">.</span><span class="n">set_autocommit</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">Model</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">():</span>
+			<span class="n">m</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="n">db_engine</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">db_engine</span><span class="p">)</span>
+		
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">init_session</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">wsgi_app</span><span class="p">):</span>
+		<span class="n">session_options</span> <span class="o">=</span> <span class="p">{</span>
+			<span class="s">&#39;session.type&#39;</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&#39;session_type&#39;</span><span class="p">],</span>
+			<span class="s">&quot;session.auto&quot;</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&quot;session_auto&quot;</span><span class="p">],</span>
+			<span class="s">&#39;session.cookie_expires&#39;</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&#39;session_cookie_expires&#39;</span><span class="p">],</span>
+			<span class="s">&#39;session.encrypt_key&#39;</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&#39;session_encrypt_key&#39;</span><span class="p">],</span>
+			<span class="s">&#39;session.validate_key&#39;</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&#39;session_validate_key&#39;</span><span class="p">]</span>
+		<span class="p">}</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">SessionMiddleware</span><span class="p">(</span><span class="n">wsgi_app</span><span class="p">,</span> <span class="n">session_options</span><span class="p">,</span> <span class="n">environ_key</span><span class="o">=</span><span class="s">&quot;session&quot;</span><span class="p">))</span>
+		
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">init_static_server</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">wsgi_app</span><span class="p">):</span>
+		<span class="k">if</span> <span class="s">&quot;static_path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">]:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">wsgi_app</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">SharedDataMiddleware</span><span class="p">(</span><span class="n">wsgi_app</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;/&#39;</span><span class="p">:</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;views&quot;</span><span class="p">][</span><span class="s">&quot;static_path&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;/build&quot;</span><span class="p">}))</span>
+			
+	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">init_server</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">wsgi_app</span><span class="p">):</span>
+		<span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&quot;address&quot;</span><span class="p">,</span> <span class="s">&quot;port&quot;</span><span class="p">],</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;application&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()))</span>
+		<span class="k">return</span> <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">WSGIServer</span><span class="p">((</span><span class="n">options</span><span class="p">[</span><span class="s">&quot;application&quot;</span><span class="p">][</span><span class="s">&quot;address&quot;</span><span class="p">],</span> <span class="n">options</span><span class="p">[</span><span class="s">&quot;application&quot;</span><span class="p">][</span><span class="s">&quot;port&quot;</span><span class="p">]),</span> <span class="n">wsgi_app</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+			
+	<span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_engine</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">db_engine</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+			
+	<span class="k">def</span> <span class="nf">wsgi_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+		<span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+		<span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">response</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+	
+	<span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+		<span class="n">gevent</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ApplicationStarted</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+		
+	<span class="k">def</span> <span class="nf">start_no_wait</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ApplicationStarted</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+		
+	<span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">ApplicationStopped</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">kiss.py 0.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Stanislav Feldman.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
