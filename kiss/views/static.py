@@ -10,6 +10,9 @@ import traceback
 
 
 class StaticCompiler(Singleton):
+	"""
+	Static files minifier.
+	"""
 	def __init__(self, path):
 		self.css_parser = Scss()
 		scss.LOAD_PATHS = path
@@ -33,6 +36,9 @@ class StaticCompiler(Singleton):
 
 
 class StaticBuilder(Singleton):
+	"""
+	Uses StaticCompiler to minify and compile js and css.
+	"""
 	def __init__(self, path):
 		self.path = path
 		self.compiler = StaticCompiler(self.path)

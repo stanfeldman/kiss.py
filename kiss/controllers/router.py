@@ -10,6 +10,10 @@ import events
 
 
 class Router(Singleton):
+	"""
+	Router implements unique hierarhical url mapping.
+	Pass dictionary with mapping of regex and controller.
+	"""
 	def __init__(self, options):
 		self.options = options
 		self.eventer = Eventer()

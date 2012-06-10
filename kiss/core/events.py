@@ -2,6 +2,10 @@ from putils.patterns import Singleton
 
 
 class Eventer(Singleton):
+	"""
+	Event dispatcher.
+	You can subscribe to event or publish event.
+	"""
 	def __init__(self, mapping={}):
 		self.mapping = {}
 		for k,v in mapping.iteritems():
@@ -31,6 +35,14 @@ class Eventer(Singleton):
 			return self.mapping[signal][0](*argc, **argw)
 		else:
 			return None
-		
+	
+
 ApplicationStarted = 0
+"""
+Event when application is started	
+"""
+
 ApplicationStopped = 1
+"""
+Event when application is stopped
+"""

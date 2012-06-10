@@ -6,6 +6,10 @@ from peewee import Model, SelectQuery
 
 
 class Request(werkzeug.wrappers.Request):
+	"""
+	Base request object inhereted from werkzeug Request.
+	Added session object.
+	"""
 	def __init__(self, options, **argw):
 		super(Request, self).__init__(options, **argw)
 	
@@ -15,6 +19,10 @@ class Request(werkzeug.wrappers.Request):
 
 
 class Response(werkzeug.wrappers.Response):
+	"""
+	Base response object inhereted from werkzeug Response.
+	Text/html mimetype is default.
+	"""
 	def __init__(self, text, **argw):
 		if "mimetype" not in argw:
 			argw["mimetype"] = "text/html"
@@ -22,11 +30,17 @@ class Response(werkzeug.wrappers.Response):
 
 
 class RedirectResponse(werkzeug.wrappers.Response):
+	"""
+	Response for redirect. Pass path and server will do 302 request.
+	"""
 	def __new__(cls, path):
 		return redirect(path)
 		
 		
 class JsonResponse(Response):
+	"""
+	Json response. Pass any object you want, JsonResponse converts it to json.
+	"""
 	def __init__(self, inp, **argw):
 		if isinstance(inp, SelectQuery):
 			inp = self.fix_peewee_list(list(inp))

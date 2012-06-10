@@ -16,6 +16,10 @@ import logging
 
 
 class Application(Singleton):
+	"""
+	Main class of your application.
+	Pass options to constructor and all subsystems(eventer, router, db_engine) will be configured.
+	"""
 	def __init__(self, options):
 		self.options = Application.init_options(options)
 		self.options, self.eventer = Application.init_eventer(options)

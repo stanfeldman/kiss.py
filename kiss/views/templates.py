@@ -13,6 +13,9 @@ class Template(object):
 		
 
 class TemplateResponse(Response):
+	"""
+	Template response via Jinja2. Pass template path and context.
+	"""
 	def __init__(self, path, context={}, **argw):
 		super(TemplateResponse, self).__init__(Template.text_by_path(path, context), **argw)
 		
