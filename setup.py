@@ -9,7 +9,7 @@ setup(
     version = "0.3.1",
     author = "Stanislav Feldman",
     description = ("MVC web framework in Python with Gevent, Jinja2, Werkzeug"),
-    url = "https://github.com/stanislavfeldman/kiss.py",
+    url = "http://stanislavfeldman.github.com/kiss.py/",
     keywords = "web framework gevent jinja2 werkzeug orm",
     packages=[
     	"kiss", "kiss.controllers", "kiss.core", "kiss.views", "kiss.models"
