@@ -7,6 +7,7 @@ from kiss.core.exceptions import *
 from kiss.core.events import Eventer
 import traceback
 import events
+import inspect
 
 
 class Router(Singleton):
@@ -23,7 +24,10 @@ class Router(Singleton):
 			if k[len(k)-2] == "/":
 				k = k[:len(k)-2] + k[len(k)-1]
 			k = re.compile(k)
-			new_urls[k] = v()
+			if inspect.isclass(v):
+				new_urls[k] = v()
+			else:
+				new_urls[k] = v
 		self.options["urls"] = new_urls
 		if "templates_path" in self.options["views"]:
 			self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
