@@ -88,8 +88,27 @@ Pass dictionary with mapping of regex and controller.</p>
 <dl class="class">
 <dt id="kiss.controllers.core.Controller">
 <em class="property">class </em><tt class="descclassname">kiss.controllers.core.</tt><tt class="descname">Controller</tt><a class="reference internal" href="_modules/kiss/controllers/core.html#Controller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#kiss.controllers.core.Controller" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base class of all controllers.
-It is just Singleton.</p>
+<dd><p>Base class of all controllers.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kiss.controllers.page">
+<span id="page"></span><h2>Page<a class="headerlink" href="#module-kiss.controllers.page" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kiss.controllers.page.PageController">
+<em class="property">class </em><tt class="descclassname">kiss.controllers.page.</tt><tt class="descname">PageController</tt><big>(</big><em>page</em>, <em>context={}</em><big>)</big><a class="headerlink" href="#kiss.controllers.page.PageController" title="Permalink to this definition">¶</a></dt>
+<dd><p>If you need just to show page, create PageController and pass to it your page and optional context.
+Use it like another controllers in urls settings of your app.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-kiss.controllers.rest">
+<span id="rest"></span><h2>Rest<a class="headerlink" href="#module-kiss.controllers.rest" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kiss.controllers.rest.RestController">
+<em class="property">class </em><tt class="descclassname">kiss.controllers.rest.</tt><tt class="descname">RestController</tt><big>(</big><em>model</em>, <em>id_regex='(?P&lt;id&gt;\d+)'</em><big>)</big><a class="headerlink" href="#kiss.controllers.rest.RestController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Controller that creates REST API to your model.
+Pass model class to it and use url property and controller property in your urls settings.</p>
 </dd></dl>
 
 </div>
@@ -107,6 +126,8 @@ It is just Singleton.</p>
 <li><a class="reference internal" href="#module-kiss.controllers.events">Events</a></li>
 <li><a class="reference internal" href="#module-kiss.controllers.router">Router</a></li>
 <li><a class="reference internal" href="#module-kiss.controllers.core">Core</a></li>
+<li><a class="reference internal" href="#module-kiss.controllers.page">Page</a></li>
+<li><a class="reference internal" href="#module-kiss.controllers.rest">Rest</a></li>
 </ul>
 </li>
 </ul>

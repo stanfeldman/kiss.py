@@ -18,3 +18,4 @@ Features
 * In css files you can use SCSS syntax.
 * ORM with PostgreSQL, MySQL and SQLite(Peewee).
 * Event dispatcher. You can subscribe to event or publish event.
+* Rest controller. You can create rest interfaces to your models with RestController.

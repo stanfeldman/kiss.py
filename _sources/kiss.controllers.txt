@@ -19,5 +19,17 @@ Core
 
 .. automodule:: kiss.controllers.core
 	:members:
+	
+Page
+=====================
+
+.. automodule:: kiss.controllers.page
+	:members:
+	
+Rest
+=====================
+
+.. automodule:: kiss.controllers.rest
+	:members:
 
 	

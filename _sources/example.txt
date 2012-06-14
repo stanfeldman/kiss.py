@@ -19,6 +19,12 @@ settings.py
 
 .. code-block:: python
 
+	from os import path
+	current_dir = path.dirname(path.abspath(__file__))
+	import sys
+	sys.path.append(path.join(current_dir, "../../kiss.py"))
+	sys.path.append(path.join(current_dir, "../../compressinja/"))
+	sys.path.append(path.join(current_dir, "../../putils/"))
 	from kiss.core.application import Application
 	from controllers.controller1 import Controller1
 	from controllers.controller2 import Controller2
@@ -26,6 +32,9 @@ settings.py
 	from kiss.controllers.events import BeforeControllerAction
 	from kiss.models import SqliteDatabase
 	from kiss.core.exceptions import InternalServerError
+	from kiss.controllers.page import PageController
+	from kiss.controllers.rest import RestController
+	from models.models import Blog
 	options = {
 		"application": {
 			"address": "127.0.0.1",
@@ -37,9 +46,11 @@ settings.py
 				"(?P<user>\w+)": Controller2
 			},
 			"2": {
-				"3": Controller1,
+				"3": Controller1(),
 				"4": Controller2
-			}
+			},
+			"3": PageController("static_view.html", {"foo": "bar"}),
+			RestController(Blog).url: RestController(Blog).controller
 		},
 		"views": {
 			"templates_path": "views.templates",

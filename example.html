@@ -37,6 +37,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
           <a href="kiss.core.html" title="Core"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -65,13 +68,22 @@
 </div>
 <div class="section" id="settings-py">
 <h2>settings.py<a class="headerlink" href="#settings-py" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">kiss.core.application</span> <span class="kn">import</span> <span class="n">Application</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="n">current_dir</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">__file__</span><span class="p">))</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="s">&quot;../../kiss.py&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="s">&quot;../../compressinja/&quot;</span><span class="p">))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="s">&quot;../../putils/&quot;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">kiss.core.application</span> <span class="kn">import</span> <span class="n">Application</span>
 <span class="kn">from</span> <span class="nn">controllers.controller1</span> <span class="kn">import</span> <span class="n">Controller1</span>
 <span class="kn">from</span> <span class="nn">controllers.controller2</span> <span class="kn">import</span> <span class="n">Controller2</span>
 <span class="kn">from</span> <span class="nn">kiss.core.events</span> <span class="kn">import</span> <span class="n">ApplicationStarted</span>
 <span class="kn">from</span> <span class="nn">kiss.controllers.events</span> <span class="kn">import</span> <span class="n">BeforeControllerAction</span>
 <span class="kn">from</span> <span class="nn">kiss.models</span> <span class="kn">import</span> <span class="n">SqliteDatabase</span>
 <span class="kn">from</span> <span class="nn">kiss.core.exceptions</span> <span class="kn">import</span> <span class="n">InternalServerError</span>
+<span class="kn">from</span> <span class="nn">kiss.controllers.page</span> <span class="kn">import</span> <span class="n">PageController</span>
+<span class="kn">from</span> <span class="nn">kiss.controllers.rest</span> <span class="kn">import</span> <span class="n">RestController</span>
+<span class="kn">from</span> <span class="nn">models.models</span> <span class="kn">import</span> <span class="n">Blog</span>
 <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&quot;application&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s">&quot;address&quot;</span><span class="p">:</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span>
@@ -83,9 +95,11 @@
                         <span class="s">&quot;(?P&lt;user&gt;\w+)&quot;</span><span class="p">:</span> <span class="n">Controller2</span>
                 <span class="p">},</span>
                 <span class="s">&quot;2&quot;</span><span class="p">:</span> <span class="p">{</span>
-                        <span class="s">&quot;3&quot;</span><span class="p">:</span> <span class="n">Controller1</span><span class="p">,</span>
+                        <span class="s">&quot;3&quot;</span><span class="p">:</span> <span class="n">Controller1</span><span class="p">(),</span>
                         <span class="s">&quot;4&quot;</span><span class="p">:</span> <span class="n">Controller2</span>
-                <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s">&quot;3&quot;</span><span class="p">:</span> <span class="n">PageController</span><span class="p">(</span><span class="s">&quot;static_view.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;foo&quot;</span><span class="p">:</span> <span class="s">&quot;bar&quot;</span><span class="p">}),</span>
+                <span class="n">RestController</span><span class="p">(</span><span class="n">Blog</span><span class="p">)</span><span class="o">.</span><span class="n">url</span><span class="p">:</span> <span class="n">RestController</span><span class="p">(</span><span class="n">Blog</span><span class="p">)</span><span class="o">.</span><span class="n">controller</span>
         <span class="p">},</span>
         <span class="s">&quot;views&quot;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s">&quot;templates_path&quot;</span><span class="p">:</span> <span class="s">&quot;views.templates&quot;</span><span class="p">,</span>
@@ -234,6 +248,9 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="kiss.core.html" title="Core"
              >next</a> |</li>
