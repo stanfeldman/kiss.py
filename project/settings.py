@@ -11,6 +11,9 @@ from kiss.core.events import ApplicationStarted
 from kiss.controllers.events import BeforeControllerAction
 from kiss.models import SqliteDatabase
 from kiss.core.exceptions import InternalServerError
+from kiss.controllers.page import PageController
+from kiss.controllers.rest import RestController
+from models.models import Blog
 
 
 options = {
@@ -24,9 +27,11 @@ options = {
 			"(?P<user>\w+)": Controller2
 		},
 		"2": {
-			"3": Controller1,
+			"3": Controller1(),
 			"4": Controller2
-		}
+		},
+		"3": PageController("static_view.html", {"foo": "bar"}),
+		RestController(Blog).url: RestController(Blog).controller
 	},
 	"views": {
 		"templates_path": "views.templates",

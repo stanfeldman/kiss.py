@@ -1,4 +1,5 @@
 from kiss.views.templates import TemplateResponse
+from kiss.views.core import Response
 from kiss.core.events import Eventer
 from models.models import Blog, Entry
 import datetime
@@ -43,4 +44,4 @@ class Controller2(Controller):
 		request.params["inserted_param"] = "hi)"
 		
 	def internal_server_error(self, request):
-		return Response("<h1>oh oh 500 error</h1>")
+		return Response("<h1>error: %s</h1>" % request.description)
