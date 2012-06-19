@@ -31,5 +31,11 @@ Rest
 
 .. automodule:: kiss.controllers.rest
 	:members:
+	
+Auth
+=====================
+
+.. automodule:: kiss.controllers.auth
+	:members:
 
 	
