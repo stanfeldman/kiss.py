@@ -6,11 +6,11 @@ except:
 
 setup(
     name = "kiss.py",
-    version = "0.3.2",
+    version = "0.3.3",
     author = "Stanislav Feldman",
     description = ("MVC web framework in Python with Gevent, Jinja2, Werkzeug"),
     url = "http://stanislavfeldman.github.com/kiss.py/",
-    keywords = "web framework gevent jinja2 werkzeug orm",
+    keywords = "web framework gevent jinja2 werkzeug orm oauth socialauth vkontakte facebook google",
     packages=[
     	"kiss", "kiss.controllers", "kiss.core", "kiss.views", "kiss.models"
     ],
