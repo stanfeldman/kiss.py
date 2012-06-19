@@ -67,8 +67,7 @@ class GoogleAuthBackend(AuthBackend):
 		print user_info_response
 		result["id"] = user_info_response["id"]
 		result["email"] = user_info_response["email"]
-		result["firstname"] = user_info_response["name"]
-		result["lastname"] = user_info_response["family_name"]
+		result["name"] = user_info_response["name"]
 		return result
 
 	
@@ -81,8 +80,7 @@ class VkAuthBackend(AuthBackend):
 		user_info_response = user_info_response["response"][0]
 		print user_info_response
 		result["id"] = user_info_response["uid"]
-		result["firstname"] = user_info_response["first_name"]
-		result["lastname"] = user_info_response["last_name"]
+		result["name"] = "%s %s" % (user_info_response["first_name"], user_info_response["last_name"])
 		return result
 
 	
@@ -95,8 +93,17 @@ class FacebookAuthBackend(AuthBackend):
 		print user_info_response
 		result["id"] = user_info_response["id"]
 		result["email"] = user_info_response["email"]
-		result["firstname"] = user_info_response["first_name"]
-		result["lastname"] = user_info_response["last_name"]
+		result["name"] = user_info_response["name"]
+		return result
+		
+
+class YandexAuthBackend(AuthBackend):	
+	def process_user_info_response(self, request, user_info_response):
+		result = {}
+		print user_info_response
+		result["id"] = user_info_response["id"]
+		result["email"] = user_info_response["default_email"]
+		result["name"] = user_info_response["real_name"]
 		return result
 
 
@@ -133,6 +140,14 @@ class AuthController(object):
 			"redirect_uri": "facebook/callback",
 			"target_uri": "https://graph.facebook.com/me",
 			"backend": FacebookAuthBackend()
+		},
+		"yandex": {
+			"authorization_uri": "https://oauth.yandex.ru/authorize",
+			"scope": "",
+			"get_token_uri": "https://oauth.yandex.ru/token",
+			"redirect_uri": "yandex/callback",
+			"target_uri": "https://login.yandex.ru/info",
+			"backend": YandexAuthBackend()
 		}
 	}
 	

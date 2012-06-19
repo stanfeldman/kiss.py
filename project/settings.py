@@ -50,6 +50,10 @@ options = {
 			"facebook": {
 				"client_id": "485249151491568",
 				"client_secret": "66f2503d9806104dd47fca55a6fbbac3"
+			},
+			"yandex": {
+				"client_id": "e1dbe6ca53c14389922d6b77e36e9dee",
+				"client_secret": "7f1cb1a0c1534a9f8af98b60d8d187bb"
 			}
 		}),
 		"auth/success": AuthSuccessController,
