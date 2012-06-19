@@ -154,7 +154,7 @@ class AuthController(object):
 	
 class StartAuthController(Controller):
 	"""
-	Controller which starts oauth flow
+	Controller which starts oauth flow.
 	"""
 	def get(self, request):
 		current_options = AuthController.options[request.params["backend"]]
@@ -163,7 +163,8 @@ class StartAuthController(Controller):
 
 class EndAuthController(Controller):
 	"""
-	Controller which finishes oauth flow
+	Controller which finishes oauth flow.
+	"""
 	def get(self, request):
 		current_options = AuthController.options[request.params["backend"]]
 		access_token_result = current_options["backend"].get_access_token(request, current_options)
