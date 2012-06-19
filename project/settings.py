@@ -13,7 +13,9 @@ from kiss.models import SqliteDatabase
 from kiss.core.exceptions import InternalServerError
 from kiss.controllers.page import PageController
 from kiss.controllers.rest import RestController
+from kiss.controllers.auth import AuthController
 from models.models import Blog
+from controllers.auth import AuthPageController, AuthSuccessController
 
 
 options = {
@@ -31,7 +33,27 @@ options = {
 			"4": Controller2
 		},
 		"3": PageController("static_view.html", {"foo": "bar"}),
-		RestController(Blog).url: RestController(Blog).controller
+		RestController(Blog).url: RestController(Blog).controller,
+		"auth": AuthController({
+			"common": {
+				"base_uri": "http://test.com:8080/auth/",
+				"success_uri": "/auth/success/"
+			},
+			"google": {
+				"client_id": "691519038986.apps.googleusercontent.com",
+				"client_secret": "UsLDDLu-1ry8IgY88zy6qNiU"
+			},
+			"vk": {
+				"client_id": "2378631",
+				"client_secret": "oX5geATcgJgWbkfImli9"
+			},
+			"facebook": {
+				"client_id": "485249151491568",
+				"client_secret": "66f2503d9806104dd47fca55a6fbbac3"
+			}
+		}),
+		"auth/success": AuthSuccessController,
+		"auth/page": AuthPageController
 	},
 	"views": {
 		"templates_path": "views.templates",
