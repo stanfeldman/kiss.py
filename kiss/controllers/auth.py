@@ -47,6 +47,7 @@ class AuthBackend(object):
 		print user_info_response
 		user_info_response = self.process_user_info_response(request, user_info_response)
 		user_info_response["provider"] = request.params["backend"]
+		user_info_response["access_token"] = params["access_token"]
 		return RedirectResponse("%s?%s" % (AuthController.options["common"]["success_uri"], url_encode(user_info_response)))
 				
 	def prepare_user_info_request_params(self, access_token_result):
