@@ -44,7 +44,9 @@ class AuthBackend(object):
 		self.access_token = access_token_result["access_token"]
 		params = self.prepare_user_info_request_params(access_token_result)
 		user_info_response = json.loads(requests.get("%s?%s" % (options["target_uri"], url_encode(params)), auth=self.auth).text)
+		print user_info_response
 		user_info_response = self.process_user_info_response(request, user_info_response)
+		user_info_response["provider"] = request.params["backend"]
 		return RedirectResponse("%s?%s" % (AuthController.options["common"]["success_uri"], url_encode(user_info_response)))
 				
 	def prepare_user_info_request_params(self, access_token_result):
@@ -52,7 +54,6 @@ class AuthBackend(object):
 		
 	def process_user_info_response(self, request, user_info_response):
 		result = {}
-		print user_info_response
 		result["id"] = user_info_response["id"]
 		return result
 		
@@ -64,7 +65,6 @@ class AuthBackend(object):
 class GoogleAuthBackend(AuthBackend):
 	def process_user_info_response(self, request, user_info_response):
 		result = {}
-		print user_info_response
 		result["id"] = user_info_response["id"]
 		result["email"] = user_info_response["email"]
 		result["name"] = user_info_response["name"]
@@ -78,7 +78,6 @@ class VkAuthBackend(AuthBackend):
 	def process_user_info_response(self, request, user_info_response):
 		result = {}
 		user_info_response = user_info_response["response"][0]
-		print user_info_response
 		result["id"] = user_info_response["uid"]
 		result["name"] = "%s %s" % (user_info_response["first_name"], user_info_response["last_name"])
 		return result
@@ -90,7 +89,6 @@ class FacebookAuthBackend(AuthBackend):
 		
 	def process_user_info_response(self, request, user_info_response):
 		result = {}
-		print user_info_response
 		result["id"] = user_info_response["id"]
 		result["email"] = user_info_response["email"]
 		result["name"] = user_info_response["name"]
