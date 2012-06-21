@@ -5,6 +5,7 @@ import requests
 import json
 from werkzeug.urls import url_decode
 from putils.types import Dict, Regex
+from putils.patterns import Singleton
 from urlparse import urljoin
 from werkzeug.urls import url_encode
 	
@@ -13,7 +14,7 @@ class AuthBackend(object):
 	"""
 	Base oauth backend
 	"""
-	def get_code(self, request, options):
+	def get_code_url(self, request, options):
 		params = {
 			"client_id": options["client_id"],
 			"redirect_uri": options["redirect_uri"],
@@ -22,7 +23,7 @@ class AuthBackend(object):
 			"approval_prompt": "force",
 			"access_type": "offline"
 		}
-		return RedirectResponse("%s?%s" % (options["authorization_uri"], url_encode(params)))
+		return "%s?%s" % (options["authorization_uri"], url_encode(params))
 		
 	def get_access_token(self, request, options):
 		params = {
@@ -39,16 +40,13 @@ class AuthBackend(object):
 		return json.loads(response)
 		
 	def get_user_info(self, request, options, access_token_result):
-		if "access_token" not in access_token_result or not access_token_result["access_token"]:
-			return RedirectResponse(AuthController.options["common"]["error_uri"])
 		self.access_token = access_token_result["access_token"]
 		params = self.prepare_user_info_request_params(access_token_result)
 		user_info_response = json.loads(requests.get("%s?%s" % (options["target_uri"], url_encode(params)), auth=self.auth).text)
-		print user_info_response
 		user_info_response = self.process_user_info_response(request, user_info_response)
 		user_info_response["provider"] = request.params["backend"]
 		user_info_response["access_token"] = params["access_token"]
-		return RedirectResponse("%s?%s" % (AuthController.options["common"]["success_uri"], url_encode(user_info_response)))
+		return user_info_response
 				
 	def prepare_user_info_request_params(self, access_token_result):
 		return {"access_token": access_token_result["access_token"]}
@@ -99,65 +97,82 @@ class FacebookAuthBackend(AuthBackend):
 class YandexAuthBackend(AuthBackend):	
 	def process_user_info_response(self, request, user_info_response):
 		result = {}
-		print user_info_response
 		result["id"] = user_info_response["id"]
 		result["email"] = user_info_response["default_email"]
 		result["name"] = user_info_response["real_name"]
 		return result
 
 
+class AuthManager(Singleton):
+	"""
+	Auth manager which calls appropriate backend
+	"""	
+	def __init__(self, opts):
+		self.options = {
+			"common": {
+				"base_uri": "http://localhost:8080/auth/",
+				"success_uri": "success/",
+				"error_uri": "error/"
+			},
+			"google": {
+				"authorization_uri": "https://accounts.google.com/o/oauth2/auth",
+				"scope": "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+				"get_token_uri": "https://accounts.google.com/o/oauth2/token",
+				"redirect_uri": "google/callback",
+				"target_uri": "https://www.googleapis.com/oauth2/v1/userinfo",
+				"backend": GoogleAuthBackend()
+			},
+			"vk": {
+				"authorization_uri": "http://api.vk.com/oauth/authorize",
+				"scope": "",
+				"get_token_uri": "https://api.vk.com/oauth/token",
+				"redirect_uri": "vk/callback",
+				"target_uri": "https://api.vk.com/method/users.get",
+				"backend": VkAuthBackend()
+			},
+			"facebook": {
+				"authorization_uri": "https://www.facebook.com/dialog/oauth",
+				"scope": "email",
+				"get_token_uri": "https://graph.facebook.com/oauth/access_token",
+				"redirect_uri": "facebook/callback",
+				"target_uri": "https://graph.facebook.com/me",
+				"backend": FacebookAuthBackend()
+			},
+			"yandex": {
+				"authorization_uri": "https://oauth.yandex.ru/authorize",
+				"scope": "",
+				"get_token_uri": "https://oauth.yandex.ru/token",
+				"redirect_uri": "yandex/callback",
+				"target_uri": "https://login.yandex.ru/info",
+				"backend": YandexAuthBackend()
+			}
+		}
+		self.options = Dict.merge(self.options, opts)
+		base_uri = self.options["common"]["base_uri"]
+		self.options["common"]["success_uri"] = urljoin(base_uri, self.options["common"]["success_uri"])
+		self.options["common"]["error_uri"] = urljoin(base_uri, self.options["common"]["error_uri"])
+		for backend, params in self.options.items():
+			if "redirect_uri" in params:
+				params["redirect_uri"] = urljoin(base_uri, params["redirect_uri"])
+				
+	def get_provider_url(self, request):
+		current_options = self.options[request.params["backend"]]
+		return current_options["backend"].get_code_url(request, current_options)
+			
+	def get_result_url(self, request):
+		current_options = self.options[request.params["backend"]]
+		access_token_result = current_options["backend"].get_access_token(request, current_options)
+		if "access_token" not in access_token_result or not access_token_result["access_token"]:
+			return self.options["common"]["error_uri"]
+		user_info_response = current_options["backend"].get_user_info(request, current_options, access_token_result)
+		return "%s?%s" % (self.options["common"]["success_uri"], url_encode(user_info_response))
+		
 class AuthController(object):
 	"""
 	Controller for social auth, use it in your url mappings
 	"""
-	options = {
-		"common": {
-			"base_uri": "http://localhost:8080/auth/",
-			"success_uri": "success/",
-			"error_uri": "error/"
-		},
-		"google": {
-			"authorization_uri": "https://accounts.google.com/o/oauth2/auth",
-			"scope": "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-			"get_token_uri": "https://accounts.google.com/o/oauth2/token",
-			"redirect_uri": "google/callback",
-			"target_uri": "https://www.googleapis.com/oauth2/v1/userinfo",
-			"backend": GoogleAuthBackend()
-		},
-		"vk": {
-			"authorization_uri": "http://api.vk.com/oauth/authorize",
-			"scope": "",
-			"get_token_uri": "https://api.vk.com/oauth/token",
-			"redirect_uri": "vk/callback",
-			"target_uri": "https://api.vk.com/method/users.get",
-			"backend": VkAuthBackend()
-		},
-		"facebook": {
-			"authorization_uri": "https://www.facebook.com/dialog/oauth",
-			"scope": "email",
-			"get_token_uri": "https://graph.facebook.com/oauth/access_token",
-			"redirect_uri": "facebook/callback",
-			"target_uri": "https://graph.facebook.com/me",
-			"backend": FacebookAuthBackend()
-		},
-		"yandex": {
-			"authorization_uri": "https://oauth.yandex.ru/authorize",
-			"scope": "",
-			"get_token_uri": "https://oauth.yandex.ru/token",
-			"redirect_uri": "yandex/callback",
-			"target_uri": "https://login.yandex.ru/info",
-			"backend": YandexAuthBackend()
-		}
-	}
-	
 	def __new__(cls, opts):
-		AuthController.options = Dict.merge(AuthController.options, opts)
-		base_uri = AuthController.options["common"]["base_uri"]
-		AuthController.options["common"]["success_uri"] = urljoin(base_uri, AuthController.options["common"]["success_uri"])
-		AuthController.options["common"]["error_uri"] = urljoin(base_uri, AuthController.options["common"]["error_uri"])
-		for backend, params in AuthController.options.items():
-			if "redirect_uri" in params:
-				params["redirect_uri"] = urljoin(base_uri, params["redirect_uri"])
+		AuthManager(opts)
 		return {
 			Regex.string_url_regex("backend"): {
 				"": StartAuthController,
@@ -171,8 +186,7 @@ class StartAuthController(Controller):
 	Controller which starts oauth flow.
 	"""
 	def get(self, request):
-		current_options = AuthController.options[request.params["backend"]]
-		return current_options["backend"].get_code(request, current_options)
+		return RedirectResponse(AuthManager().get_provider_url(request))
 		
 
 class EndAuthController(Controller):
@@ -180,7 +194,5 @@ class EndAuthController(Controller):
 	Controller which finishes oauth flow.
 	"""
 	def get(self, request):
-		current_options = AuthController.options[request.params["backend"]]
-		access_token_result = current_options["backend"].get_access_token(request, current_options)
-		return current_options["backend"].get_user_info(request, current_options, access_token_result)
+		return RedirectResponse(AuthManager().get_result_url(request))
 

@@ -37,7 +37,7 @@ options = {
 		"auth": AuthController({
 			"common": {
 				"base_uri": "http://test.com:8080/auth/",
-				"success_uri": "/auth/success/"
+				"success_uri": "/authsuccess/"
 			},
 			"google": {
 				"client_id": "691519038986.apps.googleusercontent.com",
@@ -56,8 +56,8 @@ options = {
 				"client_secret": "7f1cb1a0c1534a9f8af98b60d8d187bb"
 			}
 		}),
-		"auth/success": AuthSuccessController,
-		"auth/page": AuthPageController
+		"authsuccess": AuthSuccessController,
+		"authpage": AuthPageController
 	},
 	"views": {
 		"templates_path": "views.templates",
