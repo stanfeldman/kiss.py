@@ -186,6 +186,10 @@ class StartAuthController(Controller):
 	Controller which starts oauth flow.
 	"""
 	def get(self, request):
+		if "success_uri" in request.args:
+			AuthManager().options["common"]["success_uri"] = request.args["success_uri"]
+		if "error_uri" in request.args:
+			AuthManager().options["common"]["error_uri"] = request.args["error_uri"]
 		return RedirectResponse(AuthManager().get_provider_url(request))
 		
 
