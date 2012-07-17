@@ -4,6 +4,7 @@ import sys
 sys.path.append(path.join(current_dir, "../../kiss.py"))
 sys.path.append(path.join(current_dir, "../../compressinja/"))
 sys.path.append(path.join(current_dir, "../../putils/"))
+sys.path.append(path.join(current_dir, "../../pev/"))
 from kiss.core.application import Application
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
