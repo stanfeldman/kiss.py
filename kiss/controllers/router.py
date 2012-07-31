@@ -30,7 +30,7 @@ class Router(Singleton):
 				new_urls[k] = v
 		self.options["urls"] = new_urls
 		if "templates_path" in self.options["views"]:
-			self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=['compressinja.html.HtmlCompressor'])
+			self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=self.options["views"]["templates_extensions"])
 		
 	def route(self, request):
 		for re_url, controller in self.options["urls"].iteritems():

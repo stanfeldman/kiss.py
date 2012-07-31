@@ -51,7 +51,7 @@ class StaticBuilder(Singleton):
 		try:
 			Dir.walk(self.path, self.build_file)
 		except:
-			print traceback.format_exc()
+			pass
 		
 	def build_file(self, file):
 		new_path = self.path + "/build" + file.replace(self.path, "")

@@ -39,8 +39,9 @@ class Application(Singleton):
 				"port": 8080
 			},
 			"views": {
-				#"templates_path": "views.templates",
-				#"static_path": "views.static",
+				"templates_path": "views.templates",
+				"templates_extensions": ["compressinja.html.HtmlCompressor"],
+				"static_path": "views.static",
 				'session_type': "cookie",
 				"session_auto": True,
 				'session_cookie_expires': True,
