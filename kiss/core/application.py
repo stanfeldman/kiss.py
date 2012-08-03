@@ -3,13 +3,13 @@ import signal
 from gevent import monkey; monkey.patch_all()
 from gevent.wsgi import WSGIServer
 from putils.patterns import Singleton
-from putils.dynamics import Importer
+from putils.dynamics import Importer, Introspector
 from putils.types import Dict
 from kiss.controllers.router import Router
 from kiss.views.core import Request, Response
 from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
-from kiss.core.events import Eventer, ApplicationStarted, ApplicationStopped
+from kiss.core.events import Eventer, ApplicationStarted, ApplicationStopped, BeforeDatabaseEngineConfiguration, AfterDatabaseEngineConfiguration
 from kiss.views.static import StaticBuilder
 from kiss.models import Model
 import logging
@@ -24,7 +24,9 @@ class Application(Singleton):
 		self.options = Application.init_options(options)
 		self.options, self.eventer = Application.init_eventer(options)
 		self.options, self.router = Application.init_router(options)
+		self.eventer.publish(BeforeDatabaseEngineConfiguration, self)
 		self.options, self.db_engine = Application.init_db(self.options)
+		self.eventer.publish(AfterDatabaseEngineConfiguration, self)
 		self.options, self.static_builder = Application.init_static(self.options)
 		self.options, self.wsgi_app = Application.init_session(self.options, self.wsgi_app)
 		self.options, self.wsgi_app = Application.init_static_server(self.options, self.wsgi_app)
@@ -83,7 +85,7 @@ class Application(Singleton):
 		db_engine = db_engine_class(db_name, **options["models"])
 		db_engine.connect()
 		db_engine.set_autocommit(True)
-		for m in Model.__subclasses__():
+		for m in Introspector.all_subclasses(Model):
 			m._meta.database = db_engine
 		return (options, db_engine)
 		

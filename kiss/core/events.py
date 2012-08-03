@@ -9,3 +9,6 @@ ApplicationStopped = 1
 """
 Event when application is stopped
 """
+
+BeforeDatabaseEngineConfiguration = 2
+AfterDatabaseEngineConfiguration = 3
