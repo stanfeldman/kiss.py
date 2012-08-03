@@ -1,4 +1,4 @@
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, ChoiceLoader
 import re
 from kiss.controllers.core import Controller
 from putils.patterns import Singleton
@@ -30,7 +30,13 @@ class Router(Singleton):
 				new_urls[k] = v
 		self.options["urls"] = new_urls
 		if "templates_path" in self.options["views"]:
-			self.options["views"]["templates_path"] = Environment(loader=PackageLoader(self.options["views"]["templates_path"], ""), extensions=self.options["views"]["templates_extensions"])
+			tps = []
+			if isinstance(self.options["views"]["templates_path"], list):
+				for tp in self.options["views"]["templates_path"]:
+					tps.append(PackageLoader(tp, ""))
+			else:
+				tps.append(PackageLoader(self.options["views"]["templates_path"], ""))
+			self.options["views"]["templates_path"] = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
 		
 	def route(self, request):
 		for re_url, controller in self.options["urls"].iteritems():
