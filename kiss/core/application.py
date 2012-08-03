@@ -40,6 +40,7 @@ class Application(Singleton):
 				"address": "127.0.0.1",
 				"port": 8080
 			},
+			"urls": {},
 			"views": {
 				"templates_path": "views.templates",
 				"templates_extensions": ["compressinja.html.HtmlCompressor"],

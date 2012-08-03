@@ -6,7 +6,7 @@ except:
 
 setup(
     name = "kiss.py",
-    version = "0.3.7",
+    version = "0.3.8",
     author = "Stanislav Feldman",
     description = ("MVC web framework in Python with Gevent, Jinja2, Werkzeug"),
     url = "http://stanislavfeldman.github.com/kiss.py/",

@@ -18,17 +18,7 @@ class Router(Singleton):
 	def __init__(self, options):
 		self.options = options
 		self.eventer = Eventer()
-		urls = Dict.flat_dict(self.options["urls"])
-		new_urls = {}
-		for k, v in urls.iteritems():
-			if k[len(k)-2] == "/":
-				k = k[:len(k)-2] + k[len(k)-1]
-			k = re.compile(k)
-			if inspect.isclass(v):
-				new_urls[k] = v()
-			else:
-				new_urls[k] = v
-		self.options["urls"] = new_urls
+		self.add_urls(self.options["urls"], False)
 		if "templates_path" in self.options["views"]:
 			tps = []
 			if isinstance(self.options["views"]["templates_path"], list):
@@ -37,9 +27,25 @@ class Router(Singleton):
 			else:
 				tps.append(PackageLoader(self.options["views"]["templates_path"], ""))
 			self.options["views"]["templates_path"] = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
+			
+	def add_urls(self, urls, merge=True):
+		urls = Dict.flat_dict(urls)
+		new_urls = []
+		for k, v in urls.iteritems():
+			if k[len(k)-2] == "/":
+				k = k[:len(k)-2] + k[len(k)-1]
+			k = re.compile(k)
+			if inspect.isclass(v):
+				new_urls.append((k, v()))
+			else:
+				new_urls.append((k,v))
+		if merge:
+			self.options["urls"] = self.options["urls"] + new_urls
+		else:
+			self.options["urls"] = new_urls
 		
 	def route(self, request):
-		for re_url, controller in self.options["urls"].iteritems():
+		for (re_url, controller) in self.options["urls"]:
 			path = request.path.lower()
 			if path[len(path)-1] == "/":
 				path = path.rstrip('/')
