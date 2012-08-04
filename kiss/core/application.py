@@ -11,7 +11,7 @@ from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
 from kiss.core.events import Eventer, ApplicationStarted, ApplicationStopped, BeforeDatabaseEngineConfiguration, AfterDatabaseEngineConfiguration
 from kiss.views.static import StaticBuilder
-from kiss.models import Model
+from kiss.models import metadata
 import logging
 
 
@@ -25,7 +25,7 @@ class Application(Singleton):
 		self.options, self.eventer = Application.init_eventer(options)
 		self.options, self.router = Application.init_router(options)
 		self.eventer.publish(BeforeDatabaseEngineConfiguration, self)
-		self.options, self.db_engine = Application.init_db(self.options)
+		self.options = Application.init_db(self.options)
 		self.eventer.publish(AfterDatabaseEngineConfiguration, self)
 		self.options, self.static_builder = Application.init_static(self.options)
 		self.options, self.wsgi_app = Application.init_session(self.options, self.wsgi_app)
@@ -81,14 +81,9 @@ class Application(Singleton):
 	def init_db(options):
 		if "models" not in options:
 			return (options, None)
-		db_engine_class = options["models"].pop("engine")
-		db_name = options["models"].pop("database")
-		db_engine = db_engine_class(db_name, **options["models"])
-		db_engine.connect()
-		db_engine.set_autocommit(True)
-		for m in Introspector.all_subclasses(Model):
-			m._meta.database = db_engine
-		return (options, db_engine)
+		metadata.bind = options["models"]["connection"]
+		metadata.bind.echo = False
+		return (options)
 		
 	@staticmethod
 	def init_session(options, wsgi_app):

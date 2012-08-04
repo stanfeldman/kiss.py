@@ -13,7 +13,7 @@
 		</ul>
 		<div id="navbar">Blog: {{ blog.name }}</div>
 		<ul>
-		{% for entry in blog.entry_set %}
+		{% for entry in blog.entries %}
 			<li>{{  entry.title }}</li>
 		{% endfor %}
 		</ul>

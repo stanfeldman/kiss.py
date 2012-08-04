@@ -1,14 +1,13 @@
-from kiss.models import Model, CharField, TextField, DateTimeField, BooleanField, ForeignKeyField
+from kiss.models import Entity, Field, Unicode, UnicodeText, OneToMany, ManyToOne
 
 
-class Blog(Model):
-	creator = CharField()
-	name = CharField()
+class Blog(Entity):
+	creator = Field(Unicode)
+	name = Field(Unicode)
+	entries = OneToMany("Entry")
 
 
-class Entry(Model):
-	blog = ForeignKeyField(Blog)
-	title = CharField()
-	body = TextField()
-	pub_date = DateTimeField()
-	published = BooleanField(default=True)
+class Entry(Entity):
+	title = Field(Unicode)
+	body = Field(UnicodeText)
+	blog = ManyToOne("Blog")

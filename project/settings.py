@@ -10,7 +10,6 @@ from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
 from kiss.core.events import ApplicationStarted
 from kiss.controllers.events import BeforeControllerAction
-from kiss.models import SqliteDatabase
 from kiss.core.exceptions import InternalServerError
 from kiss.controllers.page import PageController
 from kiss.controllers.rest import RestController
@@ -66,15 +65,10 @@ options = {
 	},
 	"events": {
 		ApplicationStarted: Controller2.application_after_load,
-		BeforeControllerAction: Controller2.before_controller_action,
 		InternalServerError.code: Controller2.internal_server_error
 	},
 	"models": {
-		"engine": SqliteDatabase,
-		#"host": "localhost",
-		"database": path.join(current_dir, "kiss_py_project.sqldb")#,#,
-		#"user": 'postgres',
-		#"password": "postgres"
+		"connection": "sqlite:///kisspy_project.sqldb"
 	}
 }
 
