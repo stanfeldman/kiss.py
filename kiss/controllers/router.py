@@ -26,7 +26,7 @@ class Router(Singleton):
 					tps.append(PackageLoader(tp, ""))
 			else:
 				tps.append(PackageLoader(self.options["views"]["templates_path"], ""))
-			self.options["views"]["templates_path"] = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
+			self.options["views"]["templates_environment"] = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
 			
 	def add_urls(self, urls, merge=True):
 		urls = Dict.flat_dict(urls)
