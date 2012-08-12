@@ -21,11 +21,8 @@ class Router(Singleton):
 		self.add_urls(self.options["urls"], False)
 		if "templates_path" in self.options["views"]:
 			tps = []
-			if isinstance(self.options["views"]["templates_path"], list):
-				for tp in self.options["views"]["templates_path"]:
-					tps.append(PackageLoader(tp, ""))
-			else:
-				tps.append(PackageLoader(self.options["views"]["templates_path"], ""))
+			for tp in self.options["views"]["templates_path"]:
+				tps.append(PackageLoader(tp, ""))
 			self.options["views"]["templates_environment"] = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
 			
 	def add_urls(self, urls, merge=True):
@@ -43,6 +40,14 @@ class Router(Singleton):
 			self.options["urls"] = self.options["urls"] + new_urls
 		else:
 			self.options["urls"] = new_urls
+			
+	def add_template_paths(self, paths):
+		tps = []
+		if isinstance(paths, list):
+			for tp in paths:
+				self.options["views"]["templates_environment"].loader.loaders.append(PackageLoader(tp, ""))
+		else:
+			self.options["views"]["templates_environment"].loader.loaders.append(PackageLoader(paths, ""))
 		
 	def route(self, request):
 		for (re_url, controller) in self.options["urls"]:

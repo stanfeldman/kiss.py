@@ -9,7 +9,7 @@ import shutil
 import traceback
 
 
-class StaticCompiler(Singleton):
+class StaticCompiler(object):
 	"""
 	Static files minifier.
 	"""
@@ -35,7 +35,7 @@ class StaticCompiler(Singleton):
 		return open(file).read()
 
 
-class StaticBuilder(Singleton):
+class StaticBuilder(object):
 	"""
 	Uses StaticCompiler to minify and compile js and css.
 	"""

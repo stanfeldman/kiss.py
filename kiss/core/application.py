@@ -27,7 +27,7 @@ class Application(Singleton):
 		self.eventer.publish(BeforeDatabaseEngineConfiguration, self)
 		self.options = Application.init_db(self.options)
 		self.eventer.publish(AfterDatabaseEngineConfiguration, self)
-		self.options, self.static_builder = Application.init_static(self.options)
+		self.options = Application.init_static(self.options)
 		self.options, self.wsgi_app = Application.init_session(self.options, self.wsgi_app)
 		self.options, self.wsgi_app = Application.init_static_server(self.options, self.wsgi_app)
 		self.options, self.server = Application.init_server(self.options, self.wsgi_app)
@@ -42,9 +42,9 @@ class Application(Singleton):
 			},
 			"urls": {},
 			"views": {
-				"templates_path": "views.templates",
+				"templates_path": [],
 				"templates_extensions": ["compressinja.html.HtmlCompressor"],
-				"static_path": "views.static",
+				"static_path": [],
 				'session_type': "cookie",
 				"session_auto": True,
 				'session_cookie_expires': True,
@@ -66,16 +66,17 @@ class Application(Singleton):
 	@staticmethod
 	def init_static(options):
 		static_builder = None
-		if "static_path" not in options["views"]:
-			return (options, static_builder)
-		try:
-			options["views"]["static_path"] = Importer.module_path(options["views"]["static_path"])
-		except:
-			pass
-		if options["views"]["static_path"]:
-			static_builder = StaticBuilder(options["views"]["static_path"])
-			static_builder.build()
-		return (options, static_builder)
+		static_path = []
+		for sp in options["views"]["static_path"]:
+			try:
+				sp = Importer.module_path(sp)
+				static_path.append(sp)
+				static_builder = StaticBuilder(sp)
+				static_builder.build()
+			except:
+				pass
+		options["views"]["static_path"] = static_path
+		return options
 	
 	@staticmethod			
 	def init_db(options):
@@ -83,7 +84,7 @@ class Application(Singleton):
 			return (options, None)
 		metadata.bind = options["models"]["connection"]
 		metadata.bind.echo = False
-		return (options)
+		return options
 		
 	@staticmethod
 	def init_session(options, wsgi_app):
@@ -98,10 +99,9 @@ class Application(Singleton):
 		
 	@staticmethod
 	def init_static_server(options, wsgi_app):
-		if "static_path" not in options["views"]:
-			return (options, wsgi_app)
-		else:
-			return (options, SharedDataMiddleware(wsgi_app, {'/': options["views"]["static_path"] + "/build"}))
+		for sp in options["views"]["static_path"]:
+			wsgi_app = SharedDataMiddleware(wsgi_app, {'/': sp + "/build"})
+		return (options, wsgi_app)
 			
 	@staticmethod
 	def init_server(options, wsgi_app):
