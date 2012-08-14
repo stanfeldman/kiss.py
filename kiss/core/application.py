@@ -9,8 +9,9 @@ from kiss.controllers.router import Router
 from kiss.views.core import Request, Response
 from beaker.middleware import SessionMiddleware
 from werkzeug.wsgi import SharedDataMiddleware
-from kiss.core.events import Eventer, ApplicationStarted, ApplicationStopped, BeforeDatabaseEngineConfiguration, AfterDatabaseEngineConfiguration
+from kiss.core.events import *
 from kiss.views.static import StaticBuilder
+from kiss.views.core import Templater
 from kiss.models import metadata
 import logging
 
@@ -21,19 +22,23 @@ class Application(Singleton):
 	Pass options to constructor and all subsystems(eventer, router, db_engine) will be configured.
 	"""
 	def __init__(self, options):
-		self.options = Application.init_options(options)
-		self.options, self.eventer = Application.init_eventer(options)
-		self.options, self.router = Application.init_router(options)
+		self.init_options(options)
+		self.init_eventer()
+		self.init_router()
+		self.init_templater()
 		self.eventer.publish(BeforeDatabaseEngineConfiguration, self)
-		self.options = Application.init_db(self.options)
+		self.init_db()
 		self.eventer.publish(AfterDatabaseEngineConfiguration, self)
-		self.options = Application.init_static(self.options)
-		self.options, self.wsgi_app = Application.init_session(self.options, self.wsgi_app)
-		self.options, self.wsgi_app = Application.init_static_server(self.options, self.wsgi_app)
-		self.options, self.server = Application.init_server(self.options, self.wsgi_app)
+		self.init_session()
+		self.eventer.publish(BeforeInitStatic, self)
+		self.init_static()
+		self.eventer.publish(AfterInitStatic, self)
+		self.eventer.publish(BeforeInitServer, self)
+		self.init_server()
+		self.eventer.publish(AfterInitServer, self)
+		self.eventer.publish(BeforeApplicationStarted, self)
 	
-	@staticmethod	
-	def init_options(options):
+	def init_options(self, options):
 		logging.basicConfig(level=logging.CRITICAL)
 		default_options = {
 			"application": {
@@ -53,60 +58,62 @@ class Application(Singleton):
 			},
 			"events": {}
 		}
-		return Dict.merge(default_options, options)
+		self.options = Dict.merge(default_options, options)
 		
-	@staticmethod	
-	def init_eventer(options):
-		return (options, Eventer(options["events"]))
+	def init_eventer(self):
+		self.eventer = Eventer(self.options["events"])
 		
-	@staticmethod	
-	def init_router(options):
-		return (options, Router(options))
+	def init_router(self):
+		self.router = Router(self.options)
 		
-	@staticmethod
-	def init_static(options):
+	def init_templater(self):
+		self.templater = Templater(self)
+		
+	def init_static(self):
 		static_builder = None
+		self.add_static(self.options["views"]["static_path"], merge=False)
+		
+	def add_static(self, sps, url_path="/", merge=True):
 		static_path = []
-		for sp in options["views"]["static_path"]:
+		for sp in sps:
 			try:
 				sp = Importer.module_path(sp)
+			except:
+				pass
+			try:
 				static_path.append(sp)
 				static_builder = StaticBuilder(sp)
 				static_builder.build()
+				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {url_path : sp + "/build"}, cache=False)
 			except:
 				pass
-		options["views"]["static_path"] = static_path
-		return options
-	
-	@staticmethod			
-	def init_db(options):
-		if "models" not in options:
-			return (options, None)
-		metadata.bind = options["models"]["connection"]
-		metadata.bind.echo = False
-		return options
-		
-	@staticmethod
-	def init_session(options, wsgi_app):
-		session_options = {
-			'session.type': options["views"]['session_type'],
-			"session.auto": options["views"]["session_auto"],
-			'session.cookie_expires': options["views"]['session_cookie_expires'],
-			'session.encrypt_key': options["views"]['session_encrypt_key'],
-			'session.validate_key': options["views"]['session_validate_key']
-		}
-		return (options, SessionMiddleware(wsgi_app, session_options, environ_key="session"))
-		
-	@staticmethod
-	def init_static_server(options, wsgi_app):
-		for sp in options["views"]["static_path"]:
-			wsgi_app = SharedDataMiddleware(wsgi_app, {'/': sp + "/build"})
-		return (options, wsgi_app)
+		if merge:
+			self.options["views"]["static_path"] = self.options["views"]["static_path"] + static_path
+		else:
+			self.options["views"]["static_path"] = static_path
 			
-	@staticmethod
-	def init_server(options, wsgi_app):
-		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], options["application"].iteritems()))
-		return (options, WSGIServer((options["application"]["address"], options["application"]["port"]), wsgi_app, **kwargs))
+	def init_db(self):
+		if "models" in self.options:
+			metadata.bind = self.options["models"]["connection"]
+			metadata.bind.echo = False
+		
+	def init_session(self):
+		session_options = {
+			'session.type': self.options["views"]['session_type'],
+			"session.auto": self.options["views"]["session_auto"],
+			'session.cookie_expires': self.options["views"]['session_cookie_expires'],
+			'session.encrypt_key': self.options["views"]['session_encrypt_key'],
+			'session.validate_key': self.options["views"]['session_validate_key']
+		}
+		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
+		
+	def init_static_server(self):
+		for sp in self.options["views"]["static_path"]:
+			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': sp + "/build"})
+			
+	def init_server(self):
+		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
+		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
 			
 	def __del__(self):
 		if self.db_engine:

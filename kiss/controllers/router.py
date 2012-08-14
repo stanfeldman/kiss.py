@@ -40,14 +40,6 @@ class Router(Singleton):
 			self.options["urls"] = self.options["urls"] + new_urls
 		else:
 			self.options["urls"] = new_urls
-			
-	def add_template_paths(self, paths):
-		tps = []
-		if isinstance(paths, list):
-			for tp in paths:
-				self.options["views"]["templates_environment"].loader.loaders.append(PackageLoader(tp, ""))
-		else:
-			self.options["views"]["templates_environment"].loader.loaders.append(PackageLoader(paths, ""))
 		
 	def route(self, request):
 		for (re_url, controller) in self.options["urls"]:

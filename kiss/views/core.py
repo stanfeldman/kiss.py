@@ -3,6 +3,24 @@ from werkzeug.utils import cached_property
 from werkzeug.utils import redirect
 import jsonpickle
 from peewee import Model, SelectQuery
+from putils.patterns import Singleton
+from jinja2 import Environment, PackageLoader, ChoiceLoader
+
+
+class Templater(Singleton):
+	def __init__(self, app):
+		self.app = app
+		self.options = app.options
+		if "templates_path" in self.options["views"]:
+			tps = []
+			for tp in self.options["views"]["templates_path"]:
+				tps.append(PackageLoader(tp, ""))
+			self.app.templates_environment = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
+			
+	def add_template_paths(self, paths):
+		tps = []
+		for tp in paths:
+			self.app.templates_environment.loader.loaders.append(PackageLoader(tp, ""))
 
 
 class Request(werkzeug.wrappers.Request):

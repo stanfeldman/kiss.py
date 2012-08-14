@@ -5,11 +5,11 @@ from kiss.core.application import Application
 class Template(object):
 	@staticmethod
 	def text_by_path(path, context={}):
-		return Application().options["views"]["templates_environment"].get_template(path).render(context).encode("utf-8")
+		return Application().templates_environment.get_template(path).render(context).encode("utf-8")
 		
 	@staticmethod
 	def text_by_text(text, context={}):
-		return Application().options["views"]["templates_environment"].from_string(text).render(context).encode("utf-8")
+		return Application().templates_environment.from_string(text).render(context).encode("utf-8")
 		
 
 class TemplateResponse(Response):
