@@ -6,6 +6,7 @@
 	</head>
 	<body>
 		<div>{{ foo }}</div>
+		<div>trans:{% trans %}Mary{% endtrans %}, {{_("lamb")}}</div>
 		<ul>
 		{% for user in users %}
 		  <li><a href="{{ user.url }}">{{ user.username }}</a></li>

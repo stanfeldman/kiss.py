@@ -48,7 +48,7 @@ class Application(Singleton):
 			"urls": {},
 			"views": {
 				"templates_path": [],
-				"templates_extensions": ["compressinja.html.HtmlCompressor"],
+				"templates_extensions": ["compressinja.html.HtmlCompressor", "jinja2.ext.i18n"],
 				"static_path": [],
 				'session_type': "cookie",
 				"session_auto": True,

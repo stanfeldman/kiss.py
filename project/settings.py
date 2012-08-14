@@ -60,8 +60,9 @@ options = {
 		"authpage": AuthPageController
 	},
 	"views": {
-		"templates_path": "views.templates",
-		"static_path": "views.static"
+		"templates_path": ["views.templates"],
+		"static_path": ["views.static"],
+		"translations": ["views.locales"]
 	},
 	"events": {
 		ApplicationStarted: Controller2.application_after_load,

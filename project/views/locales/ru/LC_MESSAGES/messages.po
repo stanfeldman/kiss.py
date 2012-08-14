@@ -1,0 +1,17 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gettext_sample.py:1
+msgid "Mary"
+msgstr "Мэри"
+
+#: gettext_sample.py:2
+msgid "lamb"
+msgstr "ягненок"
+
+#: gettext_sample.py:3
+#, python-format
+msgid "%s had a little %s"
+msgstr "У %s был маленький %s"

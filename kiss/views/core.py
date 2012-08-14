@@ -4,7 +4,9 @@ from werkzeug.utils import redirect
 import jsonpickle
 from peewee import Model, SelectQuery
 from putils.patterns import Singleton
+from putils.dynamics import Importer
 from jinja2 import Environment, PackageLoader, ChoiceLoader
+import gettext
 
 
 class Templater(Singleton):
@@ -16,6 +18,13 @@ class Templater(Singleton):
 			for tp in self.options["views"]["templates_path"]:
 				tps.append(PackageLoader(tp, ""))
 			self.app.templates_environment = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
+			if "translations" in self.options["views"]:
+				for tr_path in self.options["views"]["translations"]:
+					try:
+						tr_path = Importer.module_path(tr_path)
+					except:
+						pass
+					self.app.templates_environment.install_gettext_translations(gettext.translation("messages", tr_path, codeset="UTF-8"))
 			
 	def add_template_paths(self, paths):
 		tps = []
