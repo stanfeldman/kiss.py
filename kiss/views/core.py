@@ -35,6 +35,7 @@ class Templater(Singleton):
 			except:
 				pass
 			self.app.templates_environment.install_gettext_translations(gettext.translation("messages", tr_path, codeset="UTF-8"))
+			gettext.install("messages", tr_path, codeset="UTF-8")
 
 
 class Request(werkzeug.wrappers.Request):
