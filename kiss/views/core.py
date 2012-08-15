@@ -19,17 +19,22 @@ class Templater(Singleton):
 				tps.append(PackageLoader(tp, ""))
 			self.app.templates_environment = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
 			if "translations" in self.options["views"]:
-				for tr_path in self.options["views"]["translations"]:
-					try:
-						tr_path = Importer.module_path(tr_path)
-					except:
-						pass
-					self.app.templates_environment.install_gettext_translations(gettext.translation("messages", tr_path, codeset="UTF-8"))
+				self.add_translation_paths(self.options["views"]["translations"])
 			
 	def add_template_paths(self, paths):
 		tps = []
 		for tp in paths:
 			self.app.templates_environment.loader.loaders.append(PackageLoader(tp, ""))
+			
+	def add_translation_paths(self, paths):
+		if not paths:
+			return
+		for tr_path in paths:
+			try:
+				tr_path = Importer.module_path(tr_path)
+			except:
+				pass
+			self.app.templates_environment.install_gettext_translations(gettext.translation("messages", tr_path, codeset="UTF-8"))
 
 
 class Request(werkzeug.wrappers.Request):
