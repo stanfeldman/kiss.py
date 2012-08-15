@@ -5,7 +5,7 @@ import jsonpickle
 from peewee import Model, SelectQuery
 from putils.patterns import Singleton
 from putils.dynamics import Importer
-from jinja2 import Environment, PackageLoader, ChoiceLoader
+from jinja2 import Environment, PackageLoader, PrefixLoader, FileSystemLoader, ChoiceLoader
 import gettext
 
 
@@ -14,17 +14,29 @@ class Templater(Singleton):
 		self.app = app
 		self.options = app.options
 		if "templates_path" in self.options["views"]:
-			tps = []
-			for tp in self.options["views"]["templates_path"]:
-				tps.append(PackageLoader(tp, ""))
-			self.app.templates_environment = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
+			self.add_template_paths(self.options["views"]["templates_path"])
 			if "translations" in self.options["views"]:
 				self.add_translation_paths(self.options["views"]["translations"])
 			
-	def add_template_paths(self, paths):
+	def add_template_paths(self, paths, prefix=""):
 		tps = []
 		for tp in paths:
-			self.app.templates_environment.loader.loaders.append(PackageLoader(tp, ""))
+			loader = None
+			try:
+				if Importer.module_path(tp): #if it module path
+					loader = PackageLoader(tp, "")
+			except:
+				loader = FileSystemLoader(tp)
+			if loader:
+				if prefix:
+					tps.append(PrefixLoader({prefix: loader}))
+				else:
+					tps.append(loader)
+		if hasattr(self.app, "templates_environment"):
+			for tl in tps:
+				self.app.templates_environment.loader.loaders.append(tl)
+		else:
+			self.app.templates_environment = Environment(loader=ChoiceLoader(tps), extensions=self.options["views"]["templates_extensions"])
 			
 	def add_translation_paths(self, paths):
 		if not paths:
