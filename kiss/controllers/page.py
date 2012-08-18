@@ -11,4 +11,5 @@ class PageController(Controller):
 		self.context = context
 		
 	def get(self, request):
+		self.context["request"] = request
 		return TemplateResponse(self.page, self.context)
