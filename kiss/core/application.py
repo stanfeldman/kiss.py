@@ -115,10 +115,6 @@ class Application(Singleton):
 		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
 			
-	def __del__(self):
-		if self.db_engine:
-			self.db_engine.close()
-			
 	def wsgi_app(self, options, start_response):
 		request = Request(options)
 		response = self.router.route(request)
@@ -137,4 +133,6 @@ class Application(Singleton):
 	def stop(self):
 		self.eventer.publish(ApplicationStopped, self)
 		self.server.stop()
+		if self.db_engine:
+			self.db_engine.close()
 
