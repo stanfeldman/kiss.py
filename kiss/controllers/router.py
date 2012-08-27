@@ -51,7 +51,11 @@ class Router(Singleton):
 				request.params = mtch.groupdict()
 				try:
 					self.eventer.publish(events.BeforeControllerAction, request)
-					action = getattr(controller, request.method.lower())
+					#check if controller has method for all requests
+					if hasattr(controller, "process") and inspect.ismethod(getattr(controller, "process")):
+						action = getattr(controller, "process")
+					else:
+						action = getattr(controller, request.method.lower())
 					response = action(request)
 					self.eventer.publish(events.AfterControllerAction, request, response)
 					if not response:
