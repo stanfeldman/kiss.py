@@ -8,7 +8,6 @@ sys.path.append(path.join(current_dir, "../../pev/"))
 from kiss.core.application import Application
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
-from kiss.core.events import ApplicationStarted
 from kiss.controllers.events import BeforeControllerAction
 from kiss.core.exceptions import InternalServerError
 from kiss.controllers.page import PageController
@@ -65,7 +64,7 @@ options = {
 		"translations": ["views.locales"]
 	},
 	"events": {
-		ApplicationStarted: Controller2.application_after_load,
+		"ApplicationStarted": Controller2.application_after_load,
 		InternalServerError.code: Controller2.internal_server_error
 	},
 	"models": {
