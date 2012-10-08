@@ -8,7 +8,6 @@ sys.path.append(path.join(current_dir, "../../pev/"))
 from kiss.core.application import Application
 from controllers.controller1 import Controller1
 from controllers.controller2 import Controller2
-from kiss.controllers.events import BeforeControllerAction
 from kiss.core.exceptions import InternalServerError
 from kiss.controllers.page import PageController
 from kiss.controllers.rest import RestController
