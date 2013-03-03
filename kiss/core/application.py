@@ -71,9 +71,9 @@ class Application(Singleton):
 		
 	def init_static(self):
 		static_builder = None
-		self.add_static(self.options["views"]["static_path"], merge=False)
+		self.add_static(self.options["views"]["static_path"], not_compile=self.options["views"]["static_not_compile"], merge=False)
 		
-	def add_static(self, sps, url_path="/", merge=True):
+	def add_static(self, sps, not_compile=[], url_path="/", merge=True):
 		static_path = []
 		for sp in sps:
 			try:
@@ -82,7 +82,7 @@ class Application(Singleton):
 				pass
 			try:
 				static_path.append(sp)
-				static_builder = StaticBuilder(sp)
+				static_builder = StaticBuilder(sp, not_compile)
 				static_builder.build()
 				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {url_path : sp + "/build"}, cache=False)
 			except:

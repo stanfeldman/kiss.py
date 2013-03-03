@@ -17,9 +17,13 @@ class StaticCompiler(object):
 		self.css_parser = Scss()
 		scss.LOAD_PATHS = path
 		
-	def compile_file(self, filepath):
-		mimetype = mimetypes.guess_type(filepath)[0]
-		return self.compile_text(self.get_content(filepath), mimetype)
+	def compile_file(self, filepath, need_compilation=True):
+		result = self.get_content(filepath)
+		if need_compilation:
+			print "compiling ", filepath
+			mimetype = mimetypes.guess_type(filepath)[0]
+			result = self.compile_text(result, mimetype)
+		return result
 		
 	def compile_text(self, text, mimetype):
 		result = ""
@@ -39,8 +43,9 @@ class StaticBuilder(object):
 	"""
 	Uses StaticCompiler to minify and compile js and css.
 	"""
-	def __init__(self, path):
+	def __init__(self, path, static_not_compile):
 		self.path = path
+		self.static_not_compile = static_not_compile
 		self.compiler = StaticCompiler(self.path)
 		
 	def build(self):
@@ -54,8 +59,12 @@ class StaticBuilder(object):
 			pass
 		
 	def build_file(self, file):
-		new_path = self.path + "/build" + file.replace(self.path, "")
-		result = self.compiler.compile_file(file)
+		rel_path = file.replace(self.path, "")
+		need_compilation = True
+		if rel_path in self.static_not_compile:
+			need_compilation = False
+		new_path = self.path + "/build" + rel_path
+		result = self.compiler.compile_file(file, need_compilation=need_compilation)
 		if result:
 			try:
 				os.makedirs(os.path.dirname(new_path))

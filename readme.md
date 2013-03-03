@@ -1,4 +1,4 @@
-# MVC web framework in Python with Gevent, Jinja2, Werkzeug
+# MVC web framework in Python with Gevent, Jinja2, Werkzeug, SQLAlchemy
 
 # Usage
 
@@ -10,7 +10,7 @@
 	Controller is class inherited from class Controller and may have methods get, post, put, delete.
 	These methods get Request object param and return Response object.
 	Request and Response objects inherited from Werkzeug.
-	There is ORM with PostgreSQL, MySQL and SQLite(Peewee).
+	There is ORM with PostgreSQL, MySQL and SQLite based on SQLAlchemy and Elixir.
 	Models consist of fields(class variables inherited from Field class).
 	There is event dispatcher named Eventer. You can subscribe to event
 	or publish event.
@@ -25,12 +25,6 @@
 
 # settings.py
 
-	from os import path
-	current_dir = path.dirname(path.abspath(__file__))
-	import sys
-	sys.path.append(path.join(current_dir, "../../kiss.py"))
-	sys.path.append(path.join(current_dir, "../../compressinja/"))
-	sys.path.append(path.join(current_dir, "../../putils/"))
 	from kiss.core.application import Application
 	from controllers.controller1 import Controller1
 	from controllers.controller2 import Controller2
