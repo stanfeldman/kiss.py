@@ -1,4 +1,5 @@
 import werkzeug.wrappers
+from werkzeug.exceptions import *
 from werkzeug.utils import cached_property
 from werkzeug.utils import redirect
 import jsonpickle
