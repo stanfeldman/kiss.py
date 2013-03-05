@@ -3,7 +3,7 @@ import re
 from kiss.controllers.core import Controller
 from putils.patterns import Singleton
 from putils.types import Dict
-from kiss.core.exceptions import *
+from kiss.views.core import *
 from kiss.core.events import Eventer
 import traceback
 import inspect
