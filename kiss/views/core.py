@@ -93,26 +93,5 @@ class JsonResponse(Response):
 	Json response. Pass any object you want, JsonResponse converts it to json.
 	"""
 	def __init__(self, inp, **argw):
-		inp = self.fix_attributes(inp)
 		json_str = jsonpickle.encode(inp, unpicklable=False)
 		super(JsonResponse, self).__init__(json_str, mimetype="application/json", **argw)
-		
-	def fix_attributes(self, inp):
-		if isinstance(inp, SelectQuery) or (isinstance(inp, list)):
-			inp = [self.fix_attributes(x) for x in list(inp)]
-		elif isinstance(inp, Model):
-			inp = self.fix_attributes_obj(inp)
-		return inp
-	
-	def fix_attributes_obj(self, obj):
-		new_dict = {}
-		for key,value in obj.__dict__.items():
-			value = self.fix_attributes(value)
-			if key[:2] == "__":
-				new_dict[key[2:]] = value
-			elif key[:7] == "_cache_":
-				new_dict[key[7:]] = value
-			else:
-				new_dict[key] = value
-		obj.__dict__ = new_dict
-		return obj
