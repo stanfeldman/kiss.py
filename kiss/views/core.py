@@ -17,6 +17,9 @@ class Templater(Singleton):
 			self.add_template_paths(self.options["views"]["templates_path"])
 			if "translations" in self.options["views"]:
 				self.add_translation_paths(self.options["views"]["translations"])
+			if "templates_filters" in self.options["views"]:
+				for name, func in self.options["views"]["templates_filters"].iteritems():
+					self.app.templates_environment.filters[name] = func
 			
 	def add_template_paths(self, paths, prefix=""):
 		tps = []
