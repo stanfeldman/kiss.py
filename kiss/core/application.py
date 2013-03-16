@@ -112,7 +112,10 @@ class Application(Singleton):
 			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': sp + "/build"})
 			
 	def init_server(self):
-		kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
+		#kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
+		kwargs = {}
+		if "system" in self.options["application"]:
+			kwargs = self.options["application"]["system"]
 		self.server = WSGIServer((self.options["application"]["address"], self.options["application"]["port"]), self.wsgi_app, **kwargs)
 			
 	def wsgi_app(self, options, start_response):
