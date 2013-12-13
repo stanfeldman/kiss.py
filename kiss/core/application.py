@@ -43,7 +43,10 @@ class Application(Singleton):
 		default_options = {
 			"application": {
 				"address": "127.0.0.1",
-				"port": 8080
+				"port": 8080,
+			    "system": {
+				    "log": None
+			    }
 			},
 			"urls": {},
 			"views": {

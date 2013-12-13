@@ -7,15 +7,17 @@ from kiss.views.core import *
 from kiss.core.events import Eventer
 import traceback
 import inspect
+import logging
 
 
 class Router(Singleton):
 	"""
-	Router implements unique hierarhical url mapping.
+	Router implements unique hierarchical url mapping.
 	Pass dictionary with mapping of regex and controller.
 	"""
 	def __init__(self, options):
 		self.options = options
+		self.logger = logging.getLogger(__name__)
 		self.eventer = Eventer()
 		self.add_urls(self.options["urls"], False)
 		if "templates_path" in self.options["views"]:
@@ -59,16 +61,29 @@ class Router(Singleton):
 					self.eventer.publish("AfterControllerAction", request, response)
 					if not response:
 						break
+					self.logger.info(Router.format_log(request, response.status_code))
 					return response
 				except HTTPException, e:
-					return self.get_err_page(e)
+					response = self.get_err_page(e)
+					self.logger.warning(Router.format_log(request, response.code, str(e)), exc_info=True)
+					return response
 				except Exception, e:
-					return self.get_err_page(InternalServerError(description=traceback.format_exc()))
-		return self.get_err_page(NotFound(description="Not found %s" % request.url))
+					response = self.get_err_page(InternalServerError(description=traceback.format_exc()))
+					self.logger.error(Router.format_log(request, response.code, str(e)), exc_info=True)
+					return response
+		response = self.get_err_page(NotFound(description="Not found %s" % request.url))
+		self.logger.warning(Router.format_log(request, response.code))
+		return response
 		
 	def get_err_page(self, err):
 		err_page = self.eventer.publish_and_get_result(err.code, err)
 		if err_page:
 			return err_page
 		return err
-		
+
+	@staticmethod
+	def format_log(request, status_code, msg=None):
+		result = '%d %s <- %s %s' % (status_code, request.url, request.remote_addr, request.headers['User-Agent'])
+		if msg:
+			result = "%s %s" % (msg, result)
+		return result

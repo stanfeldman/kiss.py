@@ -30,3 +30,8 @@ nosetests.xml
 *.mo
 
 *.sqldb
+
+# PyCharm
+# http://www.jetbrains.com/pycharm/webhelp/project.html
+.idea
+.iml
