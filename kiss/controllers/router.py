@@ -61,7 +61,12 @@ class Router(Singleton):
 					self.eventer.publish("AfterControllerAction", request, response)
 					if not response:
 						break
-					self.logger.info(Router.format_log(request, response.status_code))
+					log_code = 0
+					if hasattr(response, "status_code"):
+						log_code = response.status_code
+					else:
+						log_code = response.code
+					self.logger.info(Router.format_log(request, log_code))
 					return response
 				except HTTPException, e:
 					response = self.get_err_page(e)
@@ -83,7 +88,7 @@ class Router(Singleton):
 
 	@staticmethod
 	def format_log(request, status_code, msg=None):
-		result = '%d %s <- %s %s' % (status_code, request.url, request.remote_addr, request.headers['User-Agent'])
+		result = '%d %s %s <- %s %s' % (status_code, request.method, request.url, request.remote_addr, request.headers['User-Agent'])
 		if msg:
 			result = "%s %s" % (msg, result)
 		return result
