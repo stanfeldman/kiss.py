@@ -6,7 +6,6 @@ from scss import Scss
 from jsmin import jsmin
 import os
 import shutil
-import traceback
 
 
 class StaticCompiler(object):
@@ -20,7 +19,6 @@ class StaticCompiler(object):
 	def compile_file(self, filepath, need_compilation=True):
 		result = self.get_content(filepath)
 		if need_compilation:
-			print "compiling ", filepath
 			mimetype = mimetypes.guess_type(filepath)[0]
 			result = self.compile_text(result, mimetype)
 		return result

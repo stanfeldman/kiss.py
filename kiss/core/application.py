@@ -53,6 +53,7 @@ class Application(Singleton):
 				"templates_path": [],
 				"templates_extensions": ["compressinja.html.HtmlCompressor", "jinja2.ext.i18n"],
 				"static_path": [],
+				"static_not_compile": [],
 				'session_type': "cookie",
 				"session_auto": True,
 				'session_cookie_expires': True,
