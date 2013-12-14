@@ -19,7 +19,7 @@ from kiss.core.events import Eventer
 class Application(Singleton):
 	"""
 	Main class of your application.
-	Pass options to constructor and all subsystems(eventer, router, db_engine) will be configured.
+	Pass options to constructor and all subsystems(eventer, router) will be configured.
 	"""
 	def __init__(self, options):
 		self.init_options(options)
@@ -140,6 +140,4 @@ class Application(Singleton):
 	def stop(self):
 		self.eventer.publish("ApplicationStopped", self)
 		self.server.stop()
-		if self.db_engine:
-			self.db_engine.close()
 
