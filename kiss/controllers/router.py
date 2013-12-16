@@ -88,7 +88,11 @@ class Router(Singleton):
 
 	@staticmethod
 	def format_log(request, status_code, msg=None):
-		result = '%d %s %s <- %s %s' % (status_code, request.method, request.url, request.remote_addr, request.headers['User-Agent'])
+		addr = request.remote_addr
+		provided_ips = request.access_route
+		if provided_ips and len(provided_ips) > 0:
+			addr = provided_ips[0]
+		result = '%d %s %s <- %s %s' % (status_code, request.method, request.url, addr, request.headers['User-Agent'])
 		if msg:
 			result = "%s %s" % (msg, result)
 		return result
