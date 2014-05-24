@@ -54,6 +54,7 @@ class Application(Singleton):
 				"templates_extensions": ["compressinja.html.HtmlCompressor", "jinja2.ext.i18n"],
 				"static_path": [],
 				"static_not_compile": [],
+				"static_build": True,
 				'session_type': "cookie",
 				"session_auto": True,
 				'session_cookie_expires': True,
@@ -75,9 +76,9 @@ class Application(Singleton):
 		
 	def init_static(self):
 		static_builder = None
-		self.add_static(self.options["views"]["static_path"], not_compile=self.options["views"]["static_not_compile"], merge=False)
+		self.add_static(self.options["views"]["static_path"], not_compile=self.options["views"]["static_not_compile"], merge=False, build=self.options["views"]["static_build"])
 		
-	def add_static(self, sps, not_compile=[], url_path="/", merge=True):
+	def add_static(self, sps, not_compile=[], url_path="/", merge=True, build=True):
 		static_path = []
 		for sp in sps:
 			try:
@@ -87,8 +88,12 @@ class Application(Singleton):
 			try:
 				static_path.append(sp)
 				static_builder = StaticBuilder(sp, not_compile)
-				static_builder.build()
-				self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {url_path : sp + "/build"}, cache=False)
+				if build:
+					static_builder.build()
+				if build:
+					self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {url_path : sp + "/build"}, cache=False)
+				else:
+					self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {url_path : sp}, cache=False)
 			except:
 				pass
 		if merge:
@@ -110,10 +115,6 @@ class Application(Singleton):
 			'session.validate_key': self.options["views"]['session_validate_key']
 		}
 		self.wsgi_app = SessionMiddleware(self.wsgi_app, session_options, environ_key="session")
-		
-	def init_static_server(self):
-		for sp in self.options["views"]["static_path"]:
-			self.wsgi_app = SharedDataMiddleware(self.wsgi_app, {'/': sp + "/build"})
 			
 	def init_server(self):
 		#kwargs = dict(filter(lambda item: item[0] not in ["address", "port"], self.options["application"].iteritems()))
