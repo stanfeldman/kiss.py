@@ -70,14 +70,29 @@ class Router(Singleton):
 					return response
 				except HTTPException, e:
 					response = self.get_err_page(e)
-					self.logger.warning(Router.format_log(request, response.code, str(e)), exc_info=True)
+					log_code = 0
+					if hasattr(response, "status_code"):
+						log_code = response.status_code
+					else:
+						log_code = response.code
+					self.logger.warning(Router.format_log(request, log_code, str(e)), exc_info=True)
 					return response
 				except Exception, e:
 					response = self.get_err_page(InternalServerError(description=traceback.format_exc()))
-					self.logger.error(Router.format_log(request, response.code, str(e)), exc_info=True)
+					log_code = 0
+					if hasattr(response, "status_code"):
+						log_code = response.status_code
+					else:
+						log_code = response.code
+					self.logger.error(Router.format_log(request, log_code, str(e)), exc_info=True)
 					return response
 		response = self.get_err_page(NotFound(description="Not found %s" % request.url))
-		self.logger.warning(Router.format_log(request, response.code))
+		log_code = 0
+		if hasattr(response, "status_code"):
+			log_code = response.status_code
+		else:
+			log_code = response.code
+		self.logger.warning(Router.format_log(request, log_code))
 		return response
 		
 	def get_err_page(self, err):

@@ -1,5 +1,6 @@
 from putils.patterns import Singleton
 from kiss.views.core import Response
+from werkzeug.exceptions import MethodNotAllowed
 
 
 class Controller(object):
@@ -7,15 +8,15 @@ class Controller(object):
 	Base class of all controllers.
 	"""
 	def get(self, request):
-		return Response("Method is not supported", status=405)
+		raise MethodNotAllowed()
 		
 	def post(self, request):
-		return Response("Method is not supported", status=405)
+		raise MethodNotAllowed()
 		
 	def put(self, request):
-		return Response("Method is not supported", status=405)
+		raise MethodNotAllowed()
 		
 	def delete(self, request):
-		return Response("Method is not supported", status=405)
+		raise MethodNotAllowed()
 
 
