@@ -14,7 +14,7 @@ setup(
     packages=[
     	"kiss", "kiss.controllers", "kiss.core", "kiss.views", "kiss.models"
     ],
-    install_requires = ["gevent", "jinja2", "compressinja", "beaker", "werkzeug", "putils", "jsmin", "pyScss", "sqlalchemy == 0.7.8", "elixir", "jsonpickle", "pev", "requests", "pycrypto"],
+    install_requires = ["gevent", "jinja2", "compressinja", "beaker", "werkzeug", "putils", "jsmin", "pyScss", "sqlalchemy == 1.3.0", "elixir", "jsonpickle", "pev", "requests", "pycrypto"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Topic :: Software Development",
